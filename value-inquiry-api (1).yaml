@@ -1,0 +1,1261 @@
+openapi: 3.0.3
+info:
+  title: Value Inquiry API
+  description: API for retrieving policy value information
+  version: '1.0.0'
+
+servers:
+  - url: /api
+    description: API base URL
+
+paths:
+  /v1/policies/{planCode}/{policyNumber}/valueinquiry:
+    post:
+      summary: Get policy value information
+      description: Retrieves detailed value information for a specific policy
+      operationId: getPolicyValueInquiry
+      parameters:
+        - name: planCode
+          in: path
+          required: true
+          description: The plan code of the policy
+          schema:
+            type: string
+            example: "BFIXUL1S"
+        - name: policyNumber
+          in: path
+          required: true
+          description: The policy number to query
+          schema:
+            type: string
+            example: "VIP568"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - correlationId
+                - requestDate
+                - requestTime
+                - id
+                - carrierCode
+                - policyReferenceId
+                - binNumber
+                - cusip
+                - parties
+              properties:
+                correlationId:
+                  type: string
+                  description: Unique identifier for correlating request and response
+                  example: "657bddcddc353e5fc5f45acd"
+                requestDate:
+                  type: string
+                  format: date
+                  description: Date of the request
+                  example: "2023-01-01"
+                requestTime:
+                  type: string
+                  description: Time of the request with timezone
+                  example: "16:26:57-04:00"
+                id:
+                  type: string
+                  description: Unique identifier for the request
+                  example: "657bddcddc353e5fc5f45acd"
+                carrierCode:
+                  type: string
+                  description: Identifier for the carrier
+                  example: "ALIV"
+                policyReferenceId:
+                  type: string
+                  description: Reference identifier for the policy
+                  example: "563f35b74b904f87a2e3ddbde0c3c541"
+                binNumber:
+                  type: string
+                  description: BIN number of the policy
+                  example: "34568"
+                cusip:
+                  type: string
+                  description: CUSIP number
+                  example: "56789"
+                parties:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - partyId
+                      - partyType
+                      - firstName
+                      - lastName
+                      - partyRole
+                      - identifications
+                    properties:
+                      partyId:
+                        type: string
+                        description: Unique identifier for the party
+                        example: "Party_PI_1"
+                      partyType:
+                        type: string
+                        description: Type of party
+                        example: "INDIVIDUAL"
+                      firstName:
+                        type: string
+                        description: First name of the party
+                        example: "KAREN"
+                      lastName:
+                        type: string
+                        description: Last name of the party
+                        example: "BATES"
+                      partyRole:
+                        type: string
+                        description: Role of the party
+                        example: "PAYOR"
+                      identifications:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - identificationType
+                            - identificationValue
+                            - niprNumber
+                          properties:
+                            identificationType:
+                              type: string
+                              description: Type of identification
+                              example: "SSN"
+                            identificationValue:
+                              type: string
+                              description: Value of the identification
+                              example: "123456789"
+                            niprNumber:
+                              type: string
+                              description: NIPR number
+                              example: "123456789"
+            example:
+              correlationId: "657bddcddc353e5fc5f45acd"
+              requestDate: "2023-01-01"
+              requestTime: "16:26:57-04:00"
+              id: "657bddcddc353e5fc5f45acd"
+              carrierCode: "ALIV"
+              policyReferenceId: "563f35b74b904f87a2e3ddbde0c3c541"
+              binNumber: "34568"
+              cusip: "56789"
+              parties: [
+                {
+                  partyId: "Party_PI_1",
+                  partyType: "INDIVIDUAL",
+                  firstName: "KAREN",
+                  lastName: "BATES",
+                  partyRole: "PAYOR",
+                  identifications: [
+                    {
+                      identificationType: "SSN",
+                      identificationValue: "123456789",
+                      niprNumber: "123456789"
+                    }
+                  ]
+                },
+                {
+                  partyId: "Party_Carrier",
+                  partyType: "ORGANIZATION",
+                  fullName: "KAREN",
+                  organizationCode: "AVB123",
+                  partyRole: "CARRIER"
+                },
+                {
+                  partyId: "Party_Distributor",
+                  partyType: "ORGANIZATION",
+                  fullName: "KAREN",
+                  organizationCode: "AVB123",
+                  partyRole: "DISTRIBUTOR"
+                },
+                {
+                  partyId: "Party_Agent",
+                  partyType: "ORGANIZATION",
+                  fullName: "KAREN",
+                  organizationCode: "AVB123",
+                  partyRole: "DISTRIBUTOR"
+                }
+              ]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueInquiryResponse'
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "400", "error": "Invalid policy number format" }
+                ]
+                version: "1"
+        '401':
+          description: Unauthorized - Authentication credentials are missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "401", "error": "Missing authentication token" }
+                ]
+                version: "1"
+        '404':
+          description: Not Found - The requested policy was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "404", "error": "Policy not found" }
+                ]
+                version: "1"
+        '408':
+          description: Request Timeout - The request took too long to complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "408", "error": "Request processing timeout" }
+                ]
+                version: "1"
+        '500':
+          description: Internal Server Error - An unexpected error occurred on the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "500", "error": "Internal server error" }
+                ]
+                version: "1"
+        '504':
+          description: Gateway Timeout - The upstream service did not respond in time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "504", "error": "Gateway timeout" }
+                ]
+                version: "1"
+  /v1/policies/{planCode}/{policyNumber}/valueinquiryquote:
+    post:
+      summary: Get policy value information quote
+      description: Retrieves detailed value information quote for a specific policy
+      operationId: getPolicyValueInquiryQuote
+      parameters:
+        - name: planCode
+          in: path
+          required: true
+          description: The plan code of the policy
+          schema:
+            type: string
+            example: "BFIXUL1S"
+        - name: policyNumber
+          in: path
+          required: true
+          description: The policy number to query
+          schema:
+            type: string
+            example: "VIP568"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - correlationId
+                - requestDate
+                - requestTime
+                - id
+                - carrierCode
+                - policyReferenceId
+                - binNumber
+                - cusip
+                - parties
+              properties:
+                correlationId:
+                  type: string
+                  description: Unique identifier for correlating request and response
+                  example: "657bddcddc353e5fc5f45acd"
+                requestDate:
+                  type: string
+                  format: date
+                  description: Date of the request
+                  example: "2023-01-01"
+                requestTime:
+                  type: string
+                  description: Time of the request with timezone
+                  example: "16:26:57-04:00"
+                id:
+                  type: string
+                  description: Unique identifier for the request
+                  example: "657bddcddc353e5fc5f45acd"
+                carrierCode:
+                  type: string
+                  description: Identifier for the carrier
+                  example: "ALIV"
+                policyReferenceId:
+                  type: string
+                  description: Reference identifier for the policy
+                  example: "563f35b74b904f87a2e3ddbde0c3c541"
+                binNumber:
+                  type: string
+                  description: BIN number of the policy
+                  example: "34568"
+                cusip:
+                  type: string
+                  description: CUSIP number
+                  example: "56789"
+                parties:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - partyId
+                      - partyType
+                      - firstName
+                      - lastName
+                      - partyRole
+                      - identifications
+                    properties:
+                      partyId:
+                        type: string
+                        description: Unique identifier for the party
+                        example: "Party_PI_1"
+                      partyType:
+                        type: string
+                        description: Type of party
+                        example: "INDIVIDUAL"
+                      firstName:
+                        type: string
+                        description: First name of the party
+                        example: "KAREN"
+                      lastName:
+                        type: string
+                        description: Last name of the party
+                        example: "BATES"
+                      partyRole:
+                        type: string
+                        description: Role of the party
+                        example: "PAYOR"
+                      identifications:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - identificationType
+                            - identificationValue
+                            - niprNumber
+                          properties:
+                            identificationType:
+                              type: string
+                              description: Type of identification
+                              example: "SSN"
+                            identificationValue:
+                              type: string
+                              description: Value of the identification
+                              example: "123456789"
+                            niprNumber:
+                              type: string
+                              description: NIPR number
+                              example: "123456789"
+            example:
+              correlationId: "657bddcddc353e5fc5f45acd"
+              requestDate: "2023-01-01"
+              requestTime: "16:26:57-04:00"
+              id: "657bddcddc353e5fc5f45acd"
+              carrierCode: "ALIV"
+              policyReferenceId: "563f35b74b904f87a2e3ddbde0c3c541"
+              binNumber: "34568"
+              cusip: "56789"
+              parties: [
+                {
+                  partyId: "Party_PI_1",
+                  partyType: "INDIVIDUAL",
+                  firstName: "KAREN",
+                  lastName: "BATES",
+                  partyRole: "PAYOR",
+                  identifications: [
+                    {
+                      identificationType: "SSN",
+                      identificationValue: "123456789",
+                      niprNumber: "123456789"
+                    }
+                  ]
+                },
+                {
+                  partyId: "Party_Carrier",
+                  partyType: "ORGANIZATION",
+                  fullName: "KAREN",
+                  organizationCode: "AVB123",
+                  partyRole: "CARRIER"
+                },
+                {
+                  partyId: "Party_Distributor",
+                  partyType: "ORGANIZATION",
+                  fullName: "KAREN",
+                  organizationCode: "AVB123",
+                  partyRole: "DISTRIBUTOR"
+                },
+                {
+                  partyId: "Party_Agent",
+                  partyType: "ORGANIZATION",
+                  fullName: "KAREN",
+                  organizationCode: "AVB123",
+                  partyRole: "DISTRIBUTOR"
+                }
+              ]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValueInquiryResponse'
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "400", "error": "Invalid policy number format" }
+                ]
+                version: "1"
+        '401':
+          description: Unauthorized - Authentication credentials are missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "401", "error": "Missing authentication token" }
+                ]
+                version: "1"
+        '404':
+          description: Not Found - The requested policy was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "404", "error": "Policy not found" }
+                ]
+                version: "1"
+        '408':
+          description: Request Timeout - The request took too long to complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "408", "error": "Request processing timeout" }
+                ]
+                version: "1"
+        '500':
+          description: Internal Server Error - An unexpected error occurred on the server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "500", "error": "Internal server error" }
+                ]
+                version: "1"
+        '504':
+          description: Gateway Timeout - The upstream service did not respond in time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: error
+                correlationId: "657bddcddc353e5fc5f45acd"
+                errors: [
+                  { "errorCode": "504", "error": "Gateway timeout" }
+                ]
+                version: "1"
+
+components:
+  schemas:
+    ValueInquiryResponse:
+      type: object
+      required:
+        - status
+        - correlationId
+        - version
+      properties:
+        status:
+          type: string
+          description: Status of the response
+          example: "success"
+        correlationId:
+          type: string
+          description: Unique identifier for correlating request and response
+          example: "657bddcddc353e5fc5f45acd"
+        requestDate:
+          type: string
+          format: date
+          description: Date of the request
+          example: "2023-01-01"
+        requestTime:
+          type: string
+          description: Time of the request with timezone
+          example: "16:26:57-04:00"
+        effectiveDate:
+          type: string
+          format: date
+          description: Effective date of the policy information
+          example: "2023-01-01"
+        carrierCode:
+          type: string
+          description: Identifier for the carrier
+          example: "ALIV"
+        id:
+          type: string
+          description: Unique identifier for the request
+          example: "563f35b74b904f87a2e3ddbde0c3c541"
+        policyReferenceId:
+          type: string
+          description: Reference identifier for the policy
+          example: "563f35b74b904f87a2e3ddbde0c3c541"
+        policySource:
+          type: string
+          description: Source of the policy
+          example: "Outbound"
+        binNumber:
+          type: string
+          description: BIN number of the policy
+          example: "34568"
+        policyNumber:
+          type: string
+          description: Policy number
+          example: "VIP568"
+        policyStatus:
+          type: string
+          description: Current status of the policy
+          example: "PENDINGISSUED"
+        issueState:
+          type: string
+          description: State where policy was issued
+          example: "AA"
+        currency:
+          type: string
+          description: Currency code
+          example: "USD"
+        cusip:
+          type: string
+          description: CUSIP number
+          example: "56789"
+        policyValue:
+          type: number
+          description: Current value of the policy
+          example: 10000
+        product:
+          $ref: '#/components/schemas/Product'
+        policyDates:
+          $ref: '#/components/schemas/PolicyDates'
+        accountValues:
+          $ref: '#/components/schemas/AccountValues'
+        requiredMinimumDistribution:
+          $ref: '#/components/schemas/RequiredMinimumDistribution'
+        riders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rider'
+        systematicPrograms:
+          type: array
+          items:
+            $ref: '#/components/schemas/SystematicProgram'
+        allocation:
+          $ref: '#/components/schemas/Allocation'
+        parties:
+          type: array
+          items:
+            $ref: '#/components/schemas/Party'
+        authorization:
+          $ref: '#/components/schemas/Authorization'
+        restrictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Restriction'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        version:
+          type: string
+          description: API version
+          example: "1"
+
+    ErrorResponse:
+      type: object
+      required:
+        - status
+        - correlationId
+        - errors
+        - version
+      properties:
+        status:
+          type: string
+          description: Status of the response
+          enum: [error]
+          example: "error"
+        correlationId:
+          type: string
+          description: Unique identifier for correlating request and response
+          example: "657bddcddc353e5fc5f45acd"
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - errorCode
+              - error
+            properties:
+              errorCode:
+                type: string
+                description: Error code
+              error:
+                type: string
+                description: Error message
+        version:
+          type: string
+          description: API version
+          example: "1"
+
+    Product:
+      type: object
+      properties:
+        planName:
+          type: string
+          description: Full name of the plan
+          example: "SB UL Premium Match"
+        shortName:
+          type: string
+          description: Short name of the plan
+          example: "SB UL"
+        planCode:
+          type: string
+          description: Plan code
+          example: "BFIXUL1S"
+        productVersion:
+          type: string
+          description: Version of the product
+          example: "2021.10.15"
+
+    PolicyDates:
+      type: object
+      properties:
+        surrenderChargeFreeDate:
+          type: string
+          format: date
+          description: Date when surrender charges no longer apply
+          example: "2023-01-01"
+        policyStartDate:
+          type: string
+          format: date
+          description: Start date of the policy
+          example: "2023-01-01"
+        applicationDate:
+          type: string
+          format: date
+          description: Date of application
+          example: "2023-01-01"
+        applicationReceivedDate:
+          type: string
+          format: date
+          description: Date when application was received
+          example: "2023-01-01"
+        issueDate:
+          type: string
+          format: date
+          description: Date when policy was issued
+          example: "2023-01-01"
+
+    AccountValues:
+      type: object
+      properties:
+        surrenderValue:
+          type: number
+          format: float
+          description: Current surrender value
+          example: 161.81698
+        surrenderFreeValue:
+          type: number
+          format: float
+          description: Surrender free value
+          example: 161.81698
+        surrenderFreeValueByYear:
+          type: number
+          format: float
+          description: Surrender free value by year
+          example: 161.81698
+        totalDepositsSinceIssue:
+          type: number
+          format: float
+          description: Total deposits since policy issue
+          example: 130.0
+        loanedPortionOfAccountValue:
+          type: number
+          format: float
+          description: Loaned portion of account value
+          example: 12.42342
+
+    RequiredMinimumDistribution:
+      type: object
+      properties:
+        totalRequiredMinimumDistributionAnnualAmount:
+          type: number
+          format: float
+          description: Total required minimum distribution annual amount
+          example: 12.42342
+
+    Rider:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of rider
+          example: "BASE"
+        riderId:
+          type: string
+          description: Unique identifier for the rider
+          example: "5678"
+        riderName:
+          type: string
+          description: Name of the rider
+          example: "The specific name of the rider as designated by the insurance company. For example - Terminal Illness Accelerated Death Benefit"
+        riderCode:
+          type: string
+          description: Code of the rider
+          example: "SBLCHR"
+        amount:
+          type: number
+          description: Rider amount
+          example: 0
+        riderStoredIncomeBalance:
+          type: number
+          description: Stored income balance for the rider
+          example: 0
+        additionalRiderClassification:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "BASE1"
+            riderCode:
+              type: string
+              example: "SBLCHR"
+
+    SystematicProgram:
+      type: object
+      properties:
+        arrangementType:
+          type: string
+          description: Type of arrangement
+          example: "PAYMENT"
+        arrangementId:
+          type: string
+          description: Unique identifier for the arrangement
+          example: "Arr_1"
+        dayOfMonth:
+          type: string
+          description: Day of month for the systematic program
+          example: "1"
+        numberOfOccurrence:
+          type: integer
+          description: Number of occurrences
+          example: 12
+        disbursementType:
+          type: string
+          description: Type of disbursement
+          example: "GROSS"
+        status:
+          type: string
+          description: Status of the systematic program
+          example: "ACTIVE"
+        amount:
+          type: number
+          description: Amount of the systematic program
+          example: 600
+        amountAllocationPercentage:
+          type: number
+          description: Allocation percentage
+          example: 100
+        paymentForm:
+          type: string
+          description: Form of payment
+          example: "DTCC"
+        frequency:
+          type: string
+          description: Frequency of the systematic program
+          example: "DAILY"
+        startDate:
+          type: string
+          format: date
+          description: Start date
+          example: "2023-01-01"
+        endDate:
+          type: string
+          format: date
+          description: End date
+          example: "2023-01-01"
+        amountType:
+          type: string
+          description: Type of amount
+          example: "AMOUNT"
+        sourceTransferAmountType:
+          type: string
+          description: Type of source transfer amount
+          example: "AMOUNT"
+        destinationTransferAmountType:
+          type: string
+          description: Type of destination transfer amount
+          example: "AMOUNT"
+        benefitPercentage:
+          type: number
+          description: Benefit percentage
+          example: 100
+        benefitFrequency:
+          type: string
+          description: Frequency of benefit
+          example: "DAILY"
+        sourceAccountDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDetail'
+        destinationAccountDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDetail'
+        additionalSystematicPrograms:
+          type: array
+          items:
+            type: object
+            properties:
+              arrangementType:
+                type: string
+                example: "PAYMENT"
+              arrangementId:
+                type: string
+                example: "Arr_1"
+              amountType:
+                type: string
+                example: "AMOUNT"
+        party:
+          type: array
+          items:
+            type: object
+            properties:
+              partyRole:
+                type: string
+                example: "PAYOR"
+              partyId:
+                type: string
+                example: "Party_PI_1"
+              percentage:
+                type: number
+                example: 10
+              bankId:
+                type: string
+                example: "Bank_1"
+              paymentForm:
+                type: string
+                example: "DTCC"
+        parties:
+          type: array
+          items:
+            type: object
+            properties:
+              partyRole:
+                type: string
+                example: "PAYOR"
+              partyId:
+                type: string
+                example: "Party_PI_1"
+              percentage:
+                type: number
+                example: 10
+              bankId:
+                type: string
+                example: "Bank_1"
+              addressId:
+                type: string
+                example: "1"
+              paymentForm:
+                type: string
+                example: "DTCC"
+              forBenefitOfOrForFurtherCredit:
+                type: string
+                example: "TBD"
+        externalArrangementId:
+          type: string
+          example: "arrangementid123"
+
+    Allocation:
+      type: object
+      properties:
+        investmentType:
+          type: string
+          description: Type of investment
+          example: "ANNUITYFUND"
+        fundAllocationsInvestments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fund'
+        funds:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetailedFund'
+
+    Fund:
+      type: object
+      properties:
+        fundId:
+          type: string
+          description: Fund identifier
+          example: "ELF001"
+        fundName:
+          type: string
+          description: Name of the fund
+          example: "Everly Fixed IUL Fund"
+        fundAccountType:
+          type: string
+          description: Type of fund account
+          example: "FIXED"
+
+    DetailedFund:
+      type: object
+      properties:
+        fundAccountType:
+          type: string
+          description: Type of fund account
+          example: "FIXED"
+        fundId:
+          type: string
+          description: Fund identifier
+          example: "ELI002"
+        fundName:
+          type: string
+          description: Name of the fund
+          example: "S&P 500® Price Return Annual Point-to-Point with Participation Rate Account"
+        totalFundValue:
+          type: number
+          format: float
+          description: Total value of the fund
+          example: 15.67
+        availableFundValue:
+          type: number
+          format: float
+          description: Available fund value
+          example: 15.67
+        transferSendAllowed:
+          type: boolean
+          description: Whether transfer send is allowed
+          example: true
+        withdrawalsAllowed:
+          type: boolean
+          description: Whether withdrawals are allowed
+          example: true
+        transferasDestinationAllowed:
+          type: boolean
+          description: Whether transfer as destination is allowed
+          example: true
+
+    Party:
+      type: object
+      properties:
+        partyType:
+          type: string
+          description: Type of party
+          example: "INDIVIDUAL"
+        agentExternalId:
+          type: string
+          description: External agent identifier
+          example: "3160000751"
+        agentType:
+          type: string
+          description: Type of agent
+          example: "ACCOUNTMANAGER"
+        firstName:
+          type: string
+          description: First name
+          example: "KAREN"
+        lastName:
+          type: string
+          description: Last name
+          example: "BATES"
+        fullName:
+          type: string
+          description: Full name
+          example: "Karen Anne Bates"
+        organizationCode:
+          type: string
+          description: Organization code
+          example: "TBD"
+        entityType:
+          type: string
+          description: Type of entity
+          example: "SOLEPROPRIETORSHIP"
+        partyId:
+          type: string
+          description: Party identifier
+          example: "Party_PB_Primary_Bene_1"
+        identifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identification'
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Phone'
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/Email'
+        bankDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/BankDetail'
+        version:
+          type: integer
+          description: Version of the party record
+          example: 1
+
+    Authorization:
+      type: object
+      properties:
+        paymentMethod:
+          type: string
+          description: Method of payment
+          example: "Internet"
+        authorizationEntity:
+          type: string
+          description: Entity providing authorization
+          example: "Servicing Agent"
+        signatureRequired:
+          type: boolean
+          description: Whether signature is required
+          example: true
+        signatureAvailableOnFile:
+          type: boolean
+          description: Whether signature is available on file
+          example: true
+        authorizeAllAgents:
+          type: boolean
+          description: Whether all agents are authorized
+          example: true
+        authTransactions:
+          type: object
+          properties:
+            adminTransaction:
+              type: boolean
+              description: Whether admin transaction is authorized
+              example: true
+
+    Restriction:
+      type: object
+      properties:
+        restrictionCode:
+          type: string
+          description: Code for the restriction
+          example: "TBD"
+        restrictionReason:
+          type: string
+          description: Reason for the restriction
+          example: "TBD"
+
+    Error:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Error code
+          example: ""
+        error:
+          type: string
+          description: Error message
+          example: "" 
+
+    Identification:
+      type: object
+      properties:
+        identificationType:
+          type: string
+          description: Type of identification
+          example: "SSN"
+        identificationValue:
+          type: string
+          description: Value of the identification
+          example: "8548"
+        govIdStatus:
+          type: string
+          description: Government ID status
+          example: "AA" 
+
+    Address:
+      type: object
+      properties:
+        addressType:
+          type: string
+          description: Type of address
+          example: "RESIDENCE"
+        addressLine1:
+          type: string
+          description: Address line 1
+          example: "1112 Pickle Street"
+        addressLine2:
+          type: string
+          description: Address line 2
+          example: "South Jersey"
+        addressLine3:
+          type: string
+          description: Address line 3
+          example: "1234 Post box"
+        city:
+          type: string
+          description: City
+          example: "Garden City"
+        state:
+          type: string
+          description: State code
+          example: "AA"
+        zipCode:
+          type: string
+          description: ZIP code
+          example: "67846"
+        country:
+          type: string
+          description: Country code
+          example: "US"
+
+    Phone:
+      type: object
+      properties:
+        countryCode:
+          type: string
+          description: Country code
+          example: "11"
+        areaCode:
+          type: string
+          description: Area code
+          example: "973"
+        dialNumber:
+          type: string
+          description: Dial number
+          example: "765789"
+
+    Email:
+      type: object
+      properties:
+        emailAddress:
+          type: string
+          description: Email address
+          example: "will.smith@gmail.com"
+
+    BankDetail:
+      type: object
+      properties:
+        accountType:
+          type: string
+          description: Type of account
+          example: "CHECKING"
+        bankAccountPurpose:
+          type: string
+          description: Purpose of bank account
+          example: "LOANINTERESTBILLING"
+        accountNumber:
+          type: string
+          description: Account number
+          example: "34567777745678"
+        routingNumber:
+          type: string
+          description: Routing number
+          example: "123456789"
+        branchName:
+          type: string
+          description: Name of the branch
+          example: "branch_66"
+        branchPhoneNumber:
+          type: string
+          description: Phone number of the branch
+          example: "7766667777"
+        bankId:
+          type: string
+          description: Bank identifier
+          example: "1"
+        appliesToPartyId:
+          type: string
+          description: Party identifier this bank detail applies to
+          example: "Party_PI_1"
+
+    AccountDetail:
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: Account identifier
+          example: "Bank_1"
+        involvedPartyId:
+          type: string
+          description: Party identifier involved in the account
+          example: "Party_PI_1"
+        bankId:
+          type: string
+          description: Bank identifier
+          example: "Bank_1"
+        transferredAmount:
+          type: number
+          description: Amount transferred
+          example: 10000
+        transferredAmountPercentage:
+          type: number
+          description: Percentage of amount transferred
+          example: 78 

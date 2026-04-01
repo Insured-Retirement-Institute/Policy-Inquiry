@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
-  title: Policy Service
-  version: 1.0.0
+  title: Policy Inquiry
+  version: 1.1.0
   description: |
     Provides comprehensive servicing and inquiry capabilities . These endpoints allow clients to retrieve detailed information about a policy, financial values, parties, transactions, dates, riders, funds, producers, systematic programs, payouts, and underlying assets.
   license:
@@ -109,6 +109,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/StartIndex'
+      - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyFundsResponse'
@@ -153,6 +155,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/StartIndex'
+      - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyPartiesResponse'
@@ -187,7 +191,7 @@ paths:
         '504':
           $ref: '#/components/responses/GatewayTimeoutError'
 
-  /v1/policies/{policyNumber}/parties/{taxId}:
+  /v1/policies/{policyNumber}/parties/{partyId}:
     get:
       operationId: getPolicyPartyById
       tags:
@@ -198,13 +202,14 @@ paths:
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/PartyRole'
       - $ref: '#/components/parameters/PartyStatus'
-      - name: taxId
+      - $ref: '#/components/parameters/AssociatedFirmId'
+      - name: partyId
         in: path
         required: true
         description: Unique identifier of the party.
         schema:
           type: string
-          maxLength: 9
+          pattern: '^[A-Za-z0-9._-]{1,100}$'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyPartiesByIdResponse'
@@ -249,6 +254,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/StartIndex'
+      - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyProducersResponse'
@@ -293,6 +300,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/StartIndex'
+      - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyRidersResponse'
@@ -432,6 +441,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/StartIndex'
+      - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           $ref: '#/components/responses/getPolicySystematicProgramsResponse'
@@ -476,6 +487,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/StartIndex'
+      - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyPayoutsResponse'
@@ -523,6 +536,7 @@ paths:
       - $ref: '#/components/parameters/StartDate'
       - $ref: '#/components/parameters/EndDate'
       - $ref: '#/components/parameters/TransactionTypes'
+      - $ref: '#/components/parameters/StartIndex'
       - $ref: '#/components/parameters/Limit'
       responses:
         '200':
@@ -570,6 +584,8 @@ paths:
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
       - $ref: '#/components/parameters/TransactionId'
+      - $ref: '#/components/parameters/StartIndex'
+      - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyUnderlyingAssetsResponse'
@@ -701,7 +717,15 @@ components:
         Unique identifier assigned to the transaction.
       schema:
         type: string
-        pattern: '^[A-Za-z0-9._-]{1,100}$'
+    StartIndex:
+      name: startIndex
+      in: query
+      required: false
+      description: Zero-based index of the first record to return.
+      schema:
+        type: integer
+        minimum: 0
+
   responses:
     BadRequestError:
       description: Bad Request
@@ -953,6 +977,9 @@ components:
           schema:
             $ref: '#/components/schemas/PolicyFunds'
           example:
+            startIndex: 0
+            itemsCount: 1
+            totalItemsCount: 1
             funds:
             - fundAccountType: INDEXED
               fundId: 'IDX001'
@@ -979,7 +1006,6 @@ components:
                 startDate: "2026-02-01"
                 endDate: "2026-03-01"
               guaranteedInterestRate: 0.00
-              fundRestrictReason: 'COMPLIANCE'
               bonusRate: 2.00
               financialActivity: INTEREST_CREDIT
               isFinancialActivityReversed: false
@@ -1051,15 +1077,16 @@ components:
           schema:
             $ref: '#/components/schemas/PolicyProducers'
           example:
-            externalIds:
-              niprNumber: '7654321'
-              crdNumber: '5543210'
-              agencyId: '246'
-              firmId: '1701'
-            commissionOption: 'Upfront'
-            commission:
-              commissionIdentifier: 'COMM-2026-001'
-              commissionSplitPercent: 100
+            producers:
+            - externalIds:
+                npn: '7654321'
+                crdNumber: '5543210'
+                agencyId: '246'
+                firmId: '1701'
+              commissionOption: 'Upfront'
+              commission:
+                commissionIdentifier: 'COMM-2026-001'
+                commissionSplitPercent: 100
 
     getPolicyDatesResponse:
       description: Policy dates successfully retrieved.
@@ -1072,18 +1099,18 @@ components:
             $ref: '#/components/schemas/PolicyDates'
           example:
             policyDates:
-            policyStartDate: '2021-01-15'
-            applicationDate: '2020-12-20'
-            applicationReceivedDate: '2020-12-22'
-            issueDate: '2021-01-15'
-            policyDeliveryDate: '2021-01-20'
-            previousPolicyAnniversaryDate: '2025-01-15'
-            previousPolicyMonthiversaryDate: '2026-02-15'
-            nextAnniversaryDate: '2027-01-15'
-            maturityDate: '2051-01-15'
-            policyTerminationDate: '9999-12-31'
-            initialPaymentExpiryDate: '2021-02-15'
-            nextMonthiversaryDate: '2026-04-15'
+              policyStartDate: '2021-01-15'
+              applicationDate: '2020-12-20'
+              applicationReceivedDate: '2020-12-22'
+              issueDate: '2021-01-15'
+              policyDeliveryDate: '2021-01-20'
+              previousPolicyAnniversaryDate: '2025-01-15'
+              previousPolicyMonthiversaryDate: '2026-02-15'
+              nextAnniversaryDate: '2027-01-15'
+              maturityDate: '2051-01-15'
+              policyTerminationDate: '9999-12-31'
+              initialPaymentExpiryDate: '2021-02-15'
+              nextMonthiversaryDate: '2026-04-15'
 
     getPolicyPartiesResponse:
       description: Policy parties successfully retrieved.
@@ -1095,6 +1122,9 @@ components:
           schema:
             $ref: '#/components/schemas/PartiesList'
           example:
+            startIndex: 0
+            itemsCount: 1
+            totalItemsCount: 1
             parties:
             - type: individual
               firstName: 'John'
@@ -1286,6 +1316,9 @@ components:
           schema:
             $ref: '#/components/schemas/RidersList'
           example:
+            startIndex: 0
+            itemsCount: 1
+            totalItemsCount: 1
             riders:
             - timestamp: '2026-03-01T10:30:00Z'
               riderType: GMWB_RIDER
@@ -1381,7 +1414,10 @@ components:
           schema:
             $ref: '#/components/schemas/SystematicProgramsList'
           example:
-            systematicProgram:
+            startIndex: 0
+            itemsCount: 1
+            totalItemsCount: 1
+            systematicPrograms:
             - arrangementType: WITHDRAWAL
               allocationOptionType: DOLLAR
               paymentForm: ACH
@@ -1441,13 +1477,16 @@ components:
           schema:
             $ref: '#/components/schemas/PayoutsList'
           example:
+            startIndex: 0
+            itemsCount: 1
+            totalItemsCount: 1
             incomeArrangements:
             - incomeArrangementId: 'INC-001'
               annuitization:
                 isAnnuitized: true
                 annuitizationStartDateTime: '2026-03-06T10:00:00Z'
                 annuitizationEndDateTime: '2036-03-06T10:00:00Z'
-                annuitizationTypeCode: 'F'
+                annuitizationTypeCode: 'FIXED'
                 periodCertain:
                   numberOfPayments: '120'
                 survivorReduction:
@@ -1476,6 +1515,9 @@ components:
           schema:
             $ref: '#/components/schemas/TransactionsList'
           example:
+            startIndex: 0
+            itemsCount: 1
+            totalItemsCount: 1
             transactions:
             - transactionId: 'TX-0001'
               originalTransactionId: 'TX-REF-0000'
@@ -1532,6 +1574,9 @@ components:
           schema:
             $ref: '#/components/schemas/UnderlyingAssets'
           example:
+            startIndex: 0
+            itemsCount: 1
+            totalItemsCount: 1
             underlyingAssets:
             - insuranceActivityFundID: 'INS-708'
               insuranceActivityFundAmount: '1250.00'
@@ -1634,6 +1679,7 @@ components:
           type: boolean
         restrictions:
           type: array
+          description: Required when `hasRestriction` is true.
           items:
             $ref: '#/components/schemas/RestrictionReason'
         issueType:
@@ -2010,6 +2056,15 @@ components:
     PolicyFunds:
       type: object
       properties:
+        startIndex:
+          type: integer
+          minimum: 0
+        itemsCount:
+          type: integer
+          minimum: 0
+        totalItemsCount:
+          type: integer
+          minimum: 0
         funds:
           type: array
           items:
@@ -2139,6 +2194,7 @@ components:
                 maximum: 9999999999.99
               transferSendRestrictInfo:
                 type: object
+                description: Required when `isTransferSendAllowed` is false.
                 required:
                   - fundRestrictReason
                   - startDate
@@ -2165,6 +2221,7 @@ components:
                     format: date
               transferDestRestrictInfo:
                 type: object
+                description: Required when `isTransferDestAllowed` is false.
                 required:
                   - fundRestrictReason
                   - startDate
@@ -2366,6 +2423,7 @@ components:
                       format: date
               rateLockInfo:
                 type: object
+                description: Required when `isLockFeatureEnabled` is true.
                 properties:
                   rateType:
                     type: string
@@ -2423,6 +2481,15 @@ components:
     PartiesList:
       type: object
       properties:
+        startIndex:
+          type: integer
+          minimum: 0
+        itemsCount:
+          type: integer
+          minimum: 0
+        totalItemsCount:
+          type: integer
+          minimum: 0
         parties:
           type: array
           items:
@@ -2472,6 +2539,14 @@ components:
     PolicyProducers:
       type: object
       properties:
+        producers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyProducer'
+
+    PolicyProducer:
+      type: object
+      properties:
         externalIds:
           $ref: '#/components/schemas/ProducerExternalIds'
         commissionOption:
@@ -2483,11 +2558,11 @@ components:
     ProducerExternalIds:
       type: object
       required:
-        - niprNumber
+        - npn
       properties:
-        niprNumber:
+        npn:
           type: string
-          pattern: '^[0-9]{1,10}$'
+          maxLength: 100
         crdNumber:
           type: string
           pattern: '^[0-9]{1,12}$'
@@ -2555,7 +2630,7 @@ components:
     SystematicProgramsList:
       type: object
       properties:
-        systematicProgram:
+        systematicPrograms:
           type: array
           items:
             $ref: '#/components/schemas/SystematicProgram'
@@ -2578,6 +2653,15 @@ components:
         - arrSource
         - arrSubType
       properties:
+        startIndex:
+          type: integer
+          minimum: 0
+        itemsCount:
+          type: integer
+          minimum: 0
+        totalItemsCount:
+          type: integer
+          minimum: 0
         arrangementType:
           type: string
           enum: [PAYMENT, WITHDRAWAL, LOANREPAYMENT, REQUIREDMINIMUMDISTRIBUTION, PAYOUT]
@@ -2728,9 +2812,9 @@ components:
               required:
                 - requestedAmount
         - if:
-          properties:
-            amountType:
-              enum: [MAX, FREEWITHDRAWALAMOUNT, WITHDRAWALUNTILBASIS, EARNINGSONLY]
+            properties:
+              amountType:
+                enum: [MAX, FREEWITHDRAWALAMOUNT, WITHDRAWALUNTILBASIS, EARNINGSONLY]
           then:
             required: [amountType]
             not:
@@ -2879,6 +2963,15 @@ components:
     RidersList:
       type: object
       properties:
+        startIndex:
+          type: integer
+          minimum: 0
+        itemsCount:
+          type: integer
+          minimum: 0
+        totalItemsCount:
+          type: integer
+          minimum: 0
         riders:
           type: array
           items:
@@ -2887,6 +2980,15 @@ components:
     PayoutsList:
       type: object
       properties:
+        startIndex:
+          type: integer
+          minimum: 0
+        itemsCount:
+          type: integer
+          minimum: 0
+        totalItemsCount:
+          type: integer
+          minimum: 0
         incomeArrangements:
           type: array
           items:
@@ -2913,7 +3015,7 @@ components:
                     format: date-time
                   annuitizationTypeCode:
                     type: string
-                    pattern: '^[FfVv]{1}$'
+                    enum: [FIXED, VARIABLE]
                   periodCertain:
                     type: object
                     properties:
@@ -2972,6 +3074,15 @@ components:
     TransactionsList:
       type: object
       properties:
+        startIndex:
+          type: integer
+          minimum: 0
+        itemsCount:
+          type: integer
+          minimum: 0
+        totalItemsCount:
+          type: integer
+          minimum: 0
         transactions:
           type: array
           items:
@@ -3085,10 +3196,18 @@ components:
       properties:
         requestedAmount:
           type: number
+          description: >
+              Required when `amountType` is AMOUNT.
+              Must not be provided for PERCENTAGE, MAX, FREEWITHDRAWALAMOUNT,
+              WITHDRAWALUNTILBASIS, or EARNINGSONLY.
           minimum: 0
           maximum: 9999999999.99
         requestedPercentage:
           type: number
+          description: >
+              Required when `amountType` is PERCENTAGE.
+              Must not be provided for AMOUNT, MAX, FREEWITHDRAWALAMOUNT,
+              WITHDRAWALUNTILBASIS, or EARNINGSONLY.
           minimum: 0
           maximum: 100
         amountType:
@@ -3129,9 +3248,9 @@ components:
                 required:
                   - requestedAmount
           - if:
-            properties:
-              amountType:
-                enum: [MAX, FREEWITHDRAWALAMOUNT, WITHDRAWALUNTILBASIS, EARNINGSONLY]
+              properties:
+                amountType:
+                  enum: [MAX, FREEWITHDRAWALAMOUNT, WITHDRAWALUNTILBASIS, EARNINGSONLY]
             then:
               required: [amountType]
               not:
@@ -3142,6 +3261,15 @@ components:
     UnderlyingAssets:
       type: object
       properties:
+        startIndex:
+          type: integer
+          minimum: 0
+        itemsCount:
+          type: integer
+          minimum: 0
+        totalItemsCount:
+          type: integer
+          minimum: 0
         underlyingAssets:
           type: array
           items:
@@ -3209,7 +3337,12 @@ components:
 
     TaxWithholdingInstruction:
       type: object
-      description: List of tax withholding instruction entries
+      description: >
+        List of tax withholding instruction entries
+        Exactly one of `dollar` or `percentage` must be provided — not both.
+        Use `dollar` for a fixed withholding amount, or `percentage` for a
+        rate-based withholding amount.
+        `taxJurisdiction` is required when `taxWithholdingType` is STATE.
       properties:
         party:
           anyOf:

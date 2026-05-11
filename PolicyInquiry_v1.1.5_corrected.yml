@@ -1,10 +1,11 @@
 openapi: 3.1.0
 info:
   title: Policy Inquiry
-  version: 1.1.3
-  description: 'Provides comprehensive servicing and inquiry capabilities. These endpoints allow clients to retrieve detailed
-    information about a policy, financial values, parties, transactions, dates, riders, funds, producers, systematic programs,
-    payouts, and underlying assets.
+  version: 1.1.5
+  description: 'Provides comprehensive servicing and inquiry capabilities. These endpoints
+    allow clients to retrieve detailed information about a policy, financial values,
+    parties, transactions, dates, riders, funds, producers, systematic programs, payouts,
+    and underlying assets.
 
 
     ---
@@ -30,7 +31,8 @@ info:
 
     - M-2: Updated example keys to match schema renames
 
-    - M-3: Moved pagination fields to SystematicProgramsList; added pagination to PolicyProducers
+    - M-3: Moved pagination fields to SystematicProgramsList; added pagination to
+    PolicyProducers
 
     - M-4: Removed npn from ProducerExternalIds.required (read API)
 
@@ -73,7 +75,8 @@ info:
 
     - DD-1: Reverted PartyRole enum to PascalCase (DD source-of-truth alignment)
 
-    - DD-2: Reverted PartyStatus to DD canonical form (NOTAPPROVED); added clarifying description
+    - DD-2: Reverted PartyStatus to DD canonical form (NOTAPPROVED); added clarifying
+    description
 
     - R4-M-1: Removed UnderlyingAssets.transactionId (query-param echo; IRI DFA compliance)
 
@@ -81,7 +84,35 @@ info:
 
     - R4-m-3: Added maxLength constraints to classification pattern fields
 
-    - R4-m-4: Documented rationale for numeric-string typed fields'
+    - R4-m-4: Documented rationale for numeric-string typed fields
+
+
+
+    ### v1.1.5 Fixes
+
+    - Added explicit vocabulary descriptions to distinguish `PartyRole` filter values
+    from `PartyRelationship.relationships` response values
+
+    - Normalized `SystematicProgram.parties.partyRole` to PascalCase values aligned
+    with `PartyRole`
+
+    - Added top-level `PolicyProducer.producerNumber` and synchronized producer examples
+
+    - Normalized nested `rateLockInfo.rateType` example formatting to uppercase underscore
+    style
+
+    - Added explicit governance note that DD-approved legacy abbreviations are intentionally
+    retained for publication
+
+    - Preserved DD-aligned optionality, casing, and legacy abbreviations while tightening
+    documentation for governance traceability
+
+
+    ### Governance Notes
+
+    - Legacy DD abbreviations such as `modalAmt`, `modalPct`, `arrSubType`, `arrSource`,
+    and `riderFreeAmt` are intentionally retained as approved data-dictionary names
+    for this release and are not considered unresolved style defects.'
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -646,7 +677,8 @@ paths:
       operationId: getPolicyUnderlyingAssets
       tags:
       - Policy Underlying Assets
-      description: 'List of underlying asset/fund-level breakdown records tied to a transaction.
+      description: 'List of underlying asset/fund-level breakdown records tied to
+        a transaction.
 
         '
       parameters:
@@ -737,8 +769,8 @@ components:
       name: transactionTypes
       in: query
       required: false
-      description: Filter by one or more transaction type codes (comma-separated). Values correspond to the transactionType
-        field on each Transaction object.
+      description: Filter by one or more transaction type codes (comma-separated).
+        Values correspond to the transactionType field on each Transaction object.
       schema:
         type: string
         pattern: ^([A-Za-z][A-Za-z0-9]*)(,[A-Za-z][A-Za-z0-9]*)*$
@@ -755,7 +787,10 @@ components:
       name: partyRole
       in: query
       required: false
-      description: Filter parties by role.
+      description: Filter parties by role using the camelCase query key `partyRole`
+        and DD-aligned PascalCase enum values. This filter vocabulary is intentionally
+        broader than the response-body relationships enum; Payee, Payor, Agent, and
+        Trustee are supported filter values even when not emitted in PartyRelationship.relationships.
       schema:
         type: string
         enum:
@@ -773,7 +808,8 @@ components:
       name: partyStatus
       in: query
       required: false
-      description: Filter parties by status. NOTAPPROVED is the canonical DD token (not split as NOT_APPROVED).
+      description: Filter parties by status. NOTAPPROVED is the canonical DD token
+        (not split as NOT_APPROVED).
       schema:
         type: string
         enum:
@@ -784,11 +820,13 @@ components:
       name: transactionId
       in: query
       required: false
-      description: 'Unique identifier assigned to the transaction.
-
-        '
+      description: Unique identifier assigned to the transaction. Uses the standard
+        transaction identifier pattern for inquiry endpoints.
       schema:
         type: string
+        pattern: ^[A-Za-z0-9._-]{1,100}$
+        minLength: 1
+        maxLength: 100
     StartIndex:
       name: startIndex
       in: query
@@ -853,7 +891,8 @@ components:
         correlationId:
           $ref: '#/components/headers/correlationId'
     ConflictError:
-      description: 'A conflicting policy operation is in progress or the request duplicates an in-flight action. '
+      description: 'A conflicting policy operation is in progress or the request duplicates
+        an in-flight action. '
       content:
         application/json:
           schema:
@@ -1106,7 +1145,7 @@ components:
               rateTier:
                 indexReturnPercent: 20.63
                 tieredRate: 9.0
-                rateType: participation
+                rateType: PARTICIPATION
               fundSegments:
               - segmentId: SEG-IDX-001
                 fundId: IDX001
@@ -1129,7 +1168,7 @@ components:
                 maxPrice: 111.2
                 maxPriceDate: '2025-12-15'
               rateLockInfo:
-                rateType: INDEXED RATE LOCK
+                rateType: INDEXED_RATE_LOCK
                 lockStartDate: '2026-01-15'
                 lockEndDate: '2026-03-15'
                 lockPeriod: 60
@@ -1143,6 +1182,9 @@ components:
           schema:
             $ref: '#/components/schemas/PolicyProducers'
           example:
+            startIndex: 0
+            itemsCount: 1
+            totalItemsCount: 1
             producers:
             - externalIds:
                 npn: '7654321'
@@ -1153,6 +1195,7 @@ components:
               commission:
                 commissionIdentifier: COMM-2026-001
                 commissionSplitPercent: 100
+              producerNumber: PROD-001
     getPolicyDatesResponse:
       description: Policy dates successfully retrieved.
       headers:
@@ -1163,19 +1206,18 @@ components:
           schema:
             $ref: '#/components/schemas/PolicyDates'
           example:
-            policyDates:
-              policyStartDate: '2021-01-15'
-              applicationDate: '2020-12-20'
-              applicationReceivedDate: '2020-12-22'
-              issueDate: '2021-01-15'
-              policyDeliveryDate: '2021-01-20'
-              previousPolicyAnniversaryDate: '2025-01-15'
-              previousPolicyMonthiversaryDate: '2026-02-15'
-              nextAnniversaryDate: '2027-01-15'
-              maturityDate: '2051-01-15'
-              policyTerminationDate: '9999-12-31'
-              initialPaymentExpiryDate: '2021-02-15'
-              nextMonthiversaryDate: '2026-04-15'
+            policyStartDate: '2021-01-15'
+            applicationDate: '2020-12-20'
+            applicationReceivedDate: '2020-12-22'
+            issueDate: '2021-01-15'
+            policyDeliveryDate: '2021-01-20'
+            previousPolicyAnniversaryDate: '2025-01-15'
+            previousPolicyMonthiversaryDate: '2026-02-15'
+            nextAnniversaryDate: '2027-01-15'
+            maturityDate: '2051-01-15'
+            policyTerminationDate: '9999-12-31'
+            initialPaymentExpiryDate: '2021-02-15'
+            nextMonthiversaryDate: '2026-04-15'
     getPolicyPartiesResponse:
       description: Policy parties successfully retrieved.
       headers:
@@ -1269,11 +1311,6 @@ components:
                 filingStatus: SINGLE
                 dollar: 125.0
                 taxJurisdiction: NC
-              deathDetails:
-                dateOfDeath: '9999-12-31'
-                causeOfDeath: N/A
-                deathNotificationDate: '9999-12-31'
-                dateOfDueProof: '9999-12-31'
     getPolicyPartiesByIdResponse:
       description: Policy parties successfully retrieved.
       headers:
@@ -1363,11 +1400,6 @@ components:
               filingStatus: SINGLE
               dollar: 125.0
               taxJurisdiction: NC
-            deathDetails:
-              dateOfDeath: '9999-12-31'
-              causeOfDeath: N/A
-              deathNotificationDate: '9999-12-31'
-              dateOfDueProof: '9999-12-31'
     getPolicyRidersResponse:
       description: Policy riders successfully retrieved.
       headers:
@@ -1403,7 +1435,7 @@ components:
               charge:
                 riderExerciseCharge: 0.0
                 riderExerciseChargeRate: 0.0
-              maximumChronicIllnessBenefitPercentage: 100
+              maximumChronicIllnessBenefitPercentage: 100.0
               maximumPeriodicPaymentPeriod: 240
               riderPaymentDate: '2026-03-06'
               remainingBenefit: 20000.0
@@ -1520,7 +1552,7 @@ components:
               dayOfMonth: '15'
               productCode: FIAPRM01
               parties:
-              - partyRole: PAYEE
+              - partyRole: Payee
                 taxId: '789452367'
                 paymentForm: ACH
                 percentage: 100.0
@@ -1780,10 +1812,12 @@ components:
           enum:
           - PRODUCT_RULE
           - CONTRACT
-          - AUTHORIZATION/IDENTITY
+          - AUTHORIZATION_IDENTITY
           - TRANSACTION
           - ARRANGEMENT
-          - PARTY/CONTRACT_DATA
+          - PARTY_CONTRACT_DATA
+          description: Enum values use underscore-delimited tokens for consistency
+            with the broader IRI style convention.
         subCategory:
           type: string
           enum:
@@ -1859,11 +1893,6 @@ components:
     Error:
       type: object
       properties:
-        httpStatus:
-          type: integer
-          minimum: 400
-          maximum: 599
-          description: HTTP status code associated with this error
         code:
           type: string
           description: A structured error code <domain>.<category>.<subcategory>
@@ -1876,16 +1905,23 @@ components:
           description: Message with specific error details.
         validationErrors:
           type: array
-          description: Logical rule violations or decision failures related to business logic or rules
+          description: Logical rule violations or decision failures related to business
+            logic or rules
           items:
             type: object
             properties:
               code:
                 type: string
-                description: Code to classify the error & Identifies the type of business rule or decision failure.
+                description: Code to classify the error & Identifies the type of business
+                  rule or decision failure. Matches the top-level Error.code token
+                  pattern.
+                pattern: ^[a-zA-Z]+\.[a-zA-Z]+\.[a-zA-Z]+$
               message:
                 type: string
                 description: Why the error occurred / Specific business rule violation
+            required:
+            - code
+            - message
       required:
       - code
       - message
@@ -1985,6 +2021,8 @@ components:
               type: number
               minimum: 0
               maximum: 9999999999.99
+          required:
+          - endingAccountValue
         loanValues:
           type: object
           properties:
@@ -2105,8 +2143,8 @@ components:
                 - withdrawal
                 - arrangementAdministration
                 - allTransactions
-        isAuthorizationSignatureRequired:
-          type: boolean
+            isAuthorizationSignatureRequired:
+              type: boolean
     AuthorizationEntity:
       type: object
       properties:
@@ -2175,7 +2213,7 @@ components:
                 maximum: 9999999999.99
               assetClass:
                 type: string
-                enum: &id001
+                enum:
                 - FIXED
                 - VARIABLE
                 - INDEXED
@@ -2332,7 +2370,8 @@ components:
               subAccountTerm:
                 type: string
                 pattern: ^\d+$
-                description: Sub-account term period. String type retained for carrier code compatibility.
+                description: Sub-account term period. String type retained for carrier
+                  code compatibility.
               bufferRate:
                 type: number
                 minimum: 0
@@ -2392,7 +2431,8 @@ components:
               termPeriod:
                 type: string
                 pattern: ^\d+$
-                description: Term period value. String type retained for carrier-specific encoding.
+                description: Term period value. String type retained for carrier-specific
+                  encoding.
               trackingValue:
                 type: number
                 minimum: 0
@@ -2417,7 +2457,8 @@ components:
               indexOptionPeriod:
                 type: string
                 pattern: ^\d+$
-                description: Index option period. String type retained for carrier code compatibility.
+                description: Index option period. String type retained for carrier
+                  code compatibility.
               accruedInterest:
                 type: number
                 minimum: 0
@@ -2444,8 +2485,10 @@ components:
                   rateType:
                     type: string
                     enum:
-                    - participation
-                    - downside participation
+                    - PARTICIPATION
+                    - DOWNSIDE_PARTICIPATION
+                    description: Enum values normalized to uppercase underscore style
+                      for consistency.
               fundSegments:
                 type: array
                 items:
@@ -2470,6 +2513,7 @@ components:
                     fundId:
                       type: string
                       maxLength: 200
+                      pattern: ^[A-Za-z0-9._-]{1,50}$
                     originalDepositAmount:
                       type: number
                       minimum: 0
@@ -2609,49 +2653,65 @@ components:
           items:
             $ref: '#/components/schemas/Party'
     Party:
-      description: 'The parties object represents the policy parties relevant to the withdrawal (owners, annuitants, beneficiaries,
-        etc.), along with their identity, relationship, and payout instructions.
-
-        '
+      description: The parties object represents policy parties such as owners, annuitants,
+        beneficiaries, payees, trustees, and agents, together with their identity,
+        relationship, and servicing instructions.
       type: object
-      anyOf:
-      - $ref: '#/components/schemas/IndividualParty'
-      - $ref: '#/components/schemas/EntityParty'
-      properties:
-        paymentForm:
-          type: string
-          enum:
-          - DTCC
-          - ACH
-          - CHECK
-          - WIRE
-          - EXCHANGE
-        allocationPercentage:
-          type: number
-          minimum: 0
-          maximum: 100
-        bank:
-          $ref: '#/components/schemas/Bank'
-        address:
-          $ref: '#/components/schemas/Address'
-        phones:
-          type: array
-          items:
-            $ref: '#/components/schemas/Phone'
-        emails:
-          type: array
-          items:
-            $ref: '#/components/schemas/Email'
-        identifications:
-          type: array
-          items:
-            $ref: '#/components/schemas/Identification'
-        taxWithholdingInstructions:
-          type: array
-          items:
-            $ref: '#/components/schemas/TaxWithholdingInstruction'
-        deathDetails:
-          $ref: '#/components/schemas/DeathDetails'
+      allOf:
+      - type: object
+        properties:
+          paymentForm:
+            type: string
+            enum:
+            - DTCC
+            - ACH
+            - CHECK
+            - WIRE
+            - EXCHANGE
+            description: Party-level payment form. `EXCHANGE` is retained only for
+              party-level exchange servicing scenarios; recurring disbursement schemas
+              intentionally use the narrower ACH/EFT/CHECK/WIRE/DTCC vocabularies.
+          allocationPercentage:
+            type: number
+            minimum: 0
+            maximum: 100
+          bank:
+            $ref: '#/components/schemas/Bank'
+          address:
+            $ref: '#/components/schemas/Address'
+          phones:
+            type: array
+            items:
+              $ref: '#/components/schemas/Phone'
+          emails:
+            type: array
+            items:
+              $ref: '#/components/schemas/Email'
+          identifications:
+            type: array
+            items:
+              $ref: '#/components/schemas/Identification'
+          taxWithholdingInstructions:
+            type: array
+            items:
+              $ref: '#/components/schemas/TaxWithholdingInstruction'
+          deathDetails:
+            $ref: '#/components/schemas/DeathDetails'
+      - anyOf:
+        - $ref: '#/components/schemas/IndividualParty'
+        - $ref: '#/components/schemas/EntityParty'
+      - if:
+          properties:
+            paymentForm:
+              enum:
+              - ACH
+              - WIRE
+              - DTCC
+          required:
+          - paymentForm
+        then:
+          required:
+          - bank
     PolicyProducers:
       type: object
       properties:
@@ -2681,6 +2741,11 @@ components:
           maxLength: 50
         commission:
           $ref: '#/components/schemas/ProducerCommission'
+        producerNumber:
+          type: string
+          maxLength: 50
+          pattern: ^[A-Za-z0-9._-]{1,50}$
+          description: Carrier-assigned producer identifier.
     ProducerExternalIds:
       type: object
       properties:
@@ -2709,46 +2774,47 @@ components:
           maximum: 100
     PolicyDates:
       type: object
+      description: Policy date fields for the contract.
       properties:
-        policyDates:
-          type: object
-          properties:
-            policyStartDate:
-              type: string
-              format: date
-            applicationDate:
-              type: string
-              format: date
-            applicationReceivedDate:
-              type: string
-              format: date
-            issueDate:
-              type: string
-              format: date
-            policyDeliveryDate:
-              type: string
-              format: date
-            previousPolicyAnniversaryDate:
-              type: string
-              format: date
-            previousPolicyMonthiversaryDate:
-              type: string
-              format: date
-            nextAnniversaryDate:
-              type: string
-              format: date
-            maturityDate:
-              type: string
-              format: date
-            policyTerminationDate:
-              type: string
-              format: date
-            initialPaymentExpiryDate:
-              type: string
-              format: date
-            nextMonthiversaryDate:
-              type: string
-              format: date
+        policyStartDate:
+          type: string
+          format: date
+        applicationDate:
+          type: string
+          format: date
+        applicationReceivedDate:
+          type: string
+          format: date
+        issueDate:
+          type: string
+          format: date
+        policyDeliveryDate:
+          type: string
+          format: date
+        previousPolicyAnniversaryDate:
+          type: string
+          format: date
+        previousPolicyMonthiversaryDate:
+          type: string
+          format: date
+        nextAnniversaryDate:
+          type: string
+          format: date
+        maturityDate:
+          type: string
+          format: date
+        policyTerminationDate:
+          type: string
+          format: date
+        initialPaymentExpiryDate:
+          type: string
+          format: date
+        nextMonthiversaryDate:
+          type: string
+          format: date
+      required:
+      - policyStartDate
+      - issueDate
     SystematicProgramsList:
       type: object
       properties:
@@ -2810,6 +2876,9 @@ components:
           - ACH
           - CHECK
           - WIRE
+          description: Recurring systematic-program payment form. `EFT` is valid here;
+            `EXCHANGE` is intentionally excluded because exchange handling is party-specific
+            rather than a recurring disbursement mode.
         frequency:
           type: string
           enum:
@@ -2846,15 +2915,17 @@ components:
           - EARNINGSONLY
           - MODIFIEDEARNINGSONLY
         requestedAmount:
-          type:
-          - number
-          - 'null'
+          type: number
           minimum: 0
           maximum: 9999999999.99
-          description: Required when amountType is 'AMOUNT'. Mutually exclusive with requestedPercentage.
+          description: Required when amountType is 'AMOUNT'. Mutually exclusive with
+            requestedPercentage. Omit this field when amountType is not AMOUNT instead
+            of sending null.
         requestedPercentage:
           type: number
-          description: Required when amountType is 'PERCENTAGE'. Mutually exclusive with requestedAmount.
+          description: Required when amountType is 'PERCENTAGE'. Mutually exclusive
+            with requestedAmount. Populate for PERCENTAGE requests; otherwise omit
+            the field.
           minimum: 0
           maximum: 100
         externalArrangementId:
@@ -2868,10 +2939,12 @@ components:
           type: number
           minimum: 0
           maximum: 9999999999.99
+          description: Legacy DD abbreviation retained; represents modal amount.
         modalPct:
           type: number
           minimum: 0
           maximum: 100
+          description: Legacy DD abbreviation retained; represents modal percentage.
         sourceTransferAmtType:
           type: string
           enum:
@@ -2895,6 +2968,8 @@ components:
           enum:
           - TransferAmt
           - TransferPct
+          description: Legacy DD abbreviation retained; represents arrangement source.
+            Arrangement source retained per DD naming.
         taxWithholdingInstructions:
           type: array
           items:
@@ -2902,10 +2977,13 @@ components:
         arrSubType:
           type: string
           pattern: ^[A-Za-z0-9_ -]{1,100}$
-          maxLength: 50
+          maxLength: 100
+          description: Legacy DD abbreviation retained; represents arrangement subtype.
+            Arrangement subtype retained per DD naming.
         dayOfMonth:
           type: string
           pattern: ^(?:[1-9]|[12][0-9]|3[01])$
+          description: Day of month for the scheduled arrangement.
         productCode:
           type: string
           pattern: ^[A-Za-z0-9._-]{1,50}$
@@ -2923,8 +3001,10 @@ components:
               partyRole:
                 type: string
                 enum:
-                - PAYOR
-                - PAYEE
+                - Payor
+                - Payee
+                description: Role of the party within the systematic program. Uses
+                  PascalCase values to align with the PartyRole filter vocabulary.
               taxId:
                 type: string
                 maxLength: 9
@@ -2981,6 +3061,8 @@ components:
               - FREEWITHDRAWALAMOUNT
               - WITHDRAWALUNTILBASIS
               - EARNINGSONLY
+          required:
+          - amountType
         then:
           required:
           - amountType
@@ -3082,6 +3164,8 @@ components:
               insuredAgeAtIssue:
                 type: integer
                 format: int32
+                minimum: 0
+                maximum: 150
               taxId:
                 type: string
                 maxLength: 9
@@ -3093,13 +3177,16 @@ components:
             riderExerciseCharge:
               type: number
               multipleOf: 0.01
+              minimum: 0
+              maximum: 9999999999.99
             riderExerciseChargeRate:
               type: number
               multipleOf: 0.01
+              minimum: 0
+              maximum: 100
         maximumChronicIllnessBenefitPercentage:
           type: number
           minimum: 0
-          maximum: 100
         maximumPeriodicPaymentPeriod:
           type: integer
           minimum: 0
@@ -3132,7 +3219,8 @@ components:
         riderSubType:
           type: string
           pattern: ^[A-Za-z0-9_ -]{1,100}$
-          maxLength: 50
+          maxLength: 100
+          description: Subtype classification for the rider.
         livesType:
           type: string
           enum:
@@ -3146,14 +3234,18 @@ components:
           type: string
           pattern: ^[A-Za-z0-9_ -]{1,100}$
           maxLength: 100
+          description: Additional rider classification code. Additional rider classification
+            retained per DD naming.
         riderFreeAmt:
           type: number
           minimum: 0
           maximum: 9999999999.99
+          description: Legacy DD abbreviation retained; represents rider free amount.
         participantRoleCode:
           type: string
           pattern: ^[A-Za-z0-9_ -]{1,100}$
-          maxLength: 50
+          maxLength: 100
+          description: Role code describing the rider participant.
     RidersList:
       type: object
       properties:
@@ -3217,7 +3309,8 @@ components:
                       numberOfPayments:
                         type: string
                         pattern: ^\d+$
-                        description: Total payment count. String type retained for carrier-specific leading-zero semantics.
+                        description: Total payment count. String type retained for
+                          carrier-specific leading-zero semantics.
                   survivorReduction:
                     type: object
                     properties:
@@ -3243,7 +3336,8 @@ components:
                   frequencyCode:
                     type: string
                     pattern: ^[A-Za-z0-9._-]{1,50}$
-                    description: Frequency code value. String type retained for carrier-specific code semantics.
+                    description: Frequency code value. String type retained for carrier-specific
+                      code semantics.
                   amount:
                     type: object
                     properties:
@@ -3460,16 +3554,16 @@ components:
       properties:
         requestedAmount:
           type: number
-          description: 'Required when `amountType` is AMOUNT. Must not be provided for PERCENTAGE, MAX, FREEWITHDRAWALAMOUNT,
-            WITHDRAWALUNTILBASIS, or EARNINGSONLY.
+          description: 'Required when `amountType` is AMOUNT. Must not be provided
+            for PERCENTAGE, MAX, FREEWITHDRAWALAMOUNT, WITHDRAWALUNTILBASIS, or EARNINGSONLY.
 
             '
           minimum: 0
           maximum: 9999999999.99
         requestedPercentage:
           type: number
-          description: 'Required when `amountType` is PERCENTAGE. Must not be provided for AMOUNT, MAX, FREEWITHDRAWALAMOUNT,
-            WITHDRAWALUNTILBASIS, or EARNINGSONLY.
+          description: 'Required when `amountType` is PERCENTAGE. Must not be provided
+            for AMOUNT, MAX, FREEWITHDRAWALAMOUNT, WITHDRAWALUNTILBASIS, or EARNINGSONLY.
 
             '
           minimum: 0
@@ -3496,6 +3590,9 @@ components:
           - ACH
           - CHECK
           - WIRE
+          description: Transaction disbursement payment form. Uses the recurring disbursement
+            vocabulary with `EFT`; `EXCHANGE` is intentionally excluded because it
+            applies only to party-level exchange servicing.
       required:
       - amountType
       - disbursementType
@@ -3532,6 +3629,8 @@ components:
               - FREEWITHDRAWALAMOUNT
               - WITHDRAWALUNTILBASIS
               - EARNINGSONLY
+          required:
+          - amountType
         then:
           required:
           - amountType
@@ -3587,11 +3686,21 @@ components:
                 maxLength: 200
               insuranceProductSubAccountAssetClassCode:
                 type: string
-                enum: *id001
+                enum:
+                - FIXED
+                - VARIABLE
+                - INDEXED
+                - MODEL
+                - CASH
+                - EQUITY
+                - OTHER
                 description: Asset class classification code.
               insuranceActivityMutualFundCusipNumber:
                 type: string
-                pattern: ^[A-Za-z0-9]{9}$
+                pattern: ^[0-9]{3}[A-Z0-9]{5}[0-9]$
+                minLength: 9
+                maxLength: 9
+                description: Uses the standard CUSIP format.
               insuranceActivityFundMVAAmount:
                 type: string
                 pattern: ^-?\d+(\.\d+)?$
@@ -3634,11 +3743,9 @@ components:
                 - CREDIT
     TaxWithholdingInstruction:
       type: object
-      description: 'List of tax withholding instruction entries Exactly one of `dollar` or `percentage` must be provided —
-        not both. Use `dollar` for a fixed withholding amount, or `percentage` for a rate-based withholding amount. `taxJurisdiction`
-        is required when `taxWithholdingType` is STATE.
-
-        '
+      description: Tax withholding instructions. Exactly one of dollar or percentage
+        may be provided when taxRateToUse expects entered values. filingStatus remains
+        optional per the data dictionary.
       properties:
         party:
           anyOf:
@@ -3668,14 +3775,19 @@ components:
           - HEADOFHOUSEHOLD
           - WIDOWED
           - DIVORCED
+          description: Optional per data dictionary. Typically provided when `taxRateToUse`
+            is `USEDEFAULTTABLE` and filing status is needed to determine the applicable
+            withholding table; do not treat this field as universally required.
         dollar:
           type: number
-          description: Computed tax amount
+          description: Fixed dollar amount to withhold. Mutually exclusive with percentage;
+            provide one, not both.
           minimum: 0
           maximum: 9999999999.99
         percentage:
           type: number
-          description: Computed tax percentage
+          description: Percentage rate to withhold. Mutually exclusive with dollar;
+            provide one, not both.
           minimum: 0
           maximum: 100
         exemptions:
@@ -3689,11 +3801,9 @@ components:
       - taxRateToUse
       - taxWithholdingType
       oneOf:
-      - description: Use a fixed dollar amount for withholding.
-        required:
+      - required:
         - dollar
-      - description: Use a percentage for withholding.
-        required:
+      - required:
         - percentage
       allOf:
       - if:
@@ -3723,6 +3833,7 @@ components:
       - firstName
       - lastName
       - taxId
+      - type
       type: object
       properties:
         type:
@@ -3757,7 +3868,7 @@ components:
         relationships:
           type: array
           minItems: 1
-          maxItems: 2
+          maxItems: 6
           items:
             type: string
             enum:
@@ -3767,6 +3878,11 @@ components:
             - jointAnnuitant
             - primaryBeneficiary
             - contingentBeneficiary
+          description: Canonical response-body relationship vocabulary. Uses camelCase
+            relationship values returned by the service and is intentionally narrower
+            than the PartyRole query filter vocabulary. A single party may hold multiple
+            concurrent relationships, so maxItems is aligned to the full response
+            vocabulary.
     EntityIdentity:
       description: Schema for entity identity data
       type: object
@@ -3906,6 +4022,8 @@ components:
         areaCode:
           type: string
           pattern: ^[0-9]{2,5}$
+          description: Supports domestic and international numbering plans; 2 to 5
+            digits are allowed.
         dialNumber:
           type: string
           pattern: ^[0-9]{4,12}$
@@ -4052,6 +4170,7 @@ components:
           - WV
           - WI
           - WY
+          description: Values represent USPS state, territory, and military mail codes.
         issueCountry:
           type: string
           enum:
@@ -4210,7 +4329,6 @@ components:
           - MQ
           - SR
           - UY
-          - AN
           - TC
           - BL
           - MF
@@ -4305,12 +4423,8 @@ components:
           - ME
           - HM
           - CW
-          - CS
           - YE
-          - YD
-          - SU
-          - YU
-          - ZR
+          description: Uses current ISO 3166-1 alpha-2 country codes.
     DeathDetails:
       type: object
       properties:

@@ -115,7 +115,7 @@ Interactive OpenAPI documentation and schema definitions are available at:
 
 ## Versioning
 
-- Current Version: **v1.0.0**
+- Current Version: **v1.1.5**
 - Semantic versioning is applied
 - Backward‑incompatible changes require a major version increment
 - Draft and active versions are labeled per DFA governance

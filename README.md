@@ -1,11 +1,22 @@
-
 # Policy Inquiry API
+
+> **NOTE:** This repository is for the working group to use while drafting documentation and specifications before they are formally ratified.  Users outside of the working group should not begin implementing solutions based on the content in this repository as it is likely to change without notice.
 
 ## Overview
 
 The **Policy Inquiry API** defines a standardized, read‑only interface for retrieving life and annuity policy information under the IRI **Digital‑First Architecture (DFA)** initiative. The API enables carriers, distributors, and solution providers to access consistent, authoritative policy data using modern RESTful patterns, replacing fragmented and tightly coupled legacy inquiry services.
 
 This repository focuses exclusively on **policy inquiry and servicing use cases** and aligns with **OpenAPI 3.1.x** standards to ensure interoperability, scalability, and ease of integration across the industry.
+
+## Draft API Specifications
+
+The working group's draft OpenAPI specification is in the [draft-api-specs](./draft-api-specs) directory.  See [README.md](draft-api-specs/README.md) for more details.
+
+The officially published interactive OpenAPI documentation and schema definitions are available at [specs.dfa.irionline.org](https://specs.dfa.irionline.org).
+
+## Draft Business Case
+
+The working group's draft business case documentation is available in this repository. Once the documentation is finalized, it will be formally published on the [IRI DFA Library of Standards](https://www.irionline.org/member-programs/operations-technology/digital-first-library-standards/).
 
 ---
 
@@ -105,19 +116,11 @@ This approach ensures consistent diagnostics and cross‑system troubleshooting.
 
 ---
 
-## OpenAPI Specifications
-
-Interactive OpenAPI documentation and schema definitions are available at:
-
-**https://specs.dfa.irionline.org/index.html**
-
----
-
 ## Versioning
 
-- Current Version: **v1.1.5**
-- Semantic versioning is applied
-- Backward‑incompatible changes require a major version increment
+- Current draft version: **0.1.6**
+- Semantic versioning is applied per [draft-api-specs/README.md](draft-api-specs/README.md)
+- Backward‑incompatible changes require a major version increment once the specification is ratified
 - Draft and active versions are labeled per DFA governance
 
 ---
@@ -134,6 +137,8 @@ Interactive OpenAPI documentation and schema definitions are available at:
 
 All contributors and consumers must adhere to the repository **Code of Conduct** and applicable style guidelines to ensure consistent, professional collaboration.
 
+See the [Digital-First-Specifications](https://github.com/Insured-Retirement-Institute/Digital-First-Specifications) repository.
+
 ---
 
 ## How to Contribute
@@ -149,6 +154,3 @@ All contributors and consumers must adhere to the repository **Code of Conduct**
 - **Carrier Business Owner:** digitalfirst@irionline.org
 - **Distributor Business Owner:** [contact]
 - **Solution Provider Business Owner:** [contact]
-
----
-

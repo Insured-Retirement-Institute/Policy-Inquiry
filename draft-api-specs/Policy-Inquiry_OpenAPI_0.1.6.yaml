@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Policy Inquiry
-  version: 1.1.6
+  version: 0.1.6
   description: 'Provides comprehensive servicing and inquiry capabilities. These endpoints
     allow clients to retrieve detailed information about a policy, financial values,
     parties, transactions, dates, riders, funds, producers, systematic programs, payouts,

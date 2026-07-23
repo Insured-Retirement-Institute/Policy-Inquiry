@@ -22,3 +22,7 @@ All API specification MUST use [SemVer 2.0.0](https://semver.org/) version strin
 * Major versions MUST NOT be skipped (e.g. ratifying 3.0.0 requires a prior ratified 2.0.0).
 * IRI will ratify the final version number. Working group target numbers are proposals; IRI MAY require a different version if the semver classification is incorrect (e.g. a breaking change labeled as minor).
 * Multiple working drafts targeting different versions MAY coexist (e.g. a 1.1.0-draft.2 adding features alongside a 2.0.0-draft.1 introducing a breaking redesign).
+
+## Supporting documentation
+
+- [Policy-Inquiry_OpenAPI_2.0.0-rc.1.yaml](Policy-Inquiry_OpenAPI_2.0.0-rc.1.yaml)

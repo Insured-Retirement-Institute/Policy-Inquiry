@@ -118,7 +118,7 @@ This approach ensures consistent diagnostics and cross‑system troubleshooting.
 
 ## Versioning
 
-- Current draft version: **0.1.6**
+- Current draft version: **2.0.0-rc.1**
 - Semantic versioning is applied per [draft-api-specs/README.md](draft-api-specs/README.md)
 - Backward‑incompatible changes require a major version increment once the specification is ratified
 - Draft and active versions are labeled per DFA governance

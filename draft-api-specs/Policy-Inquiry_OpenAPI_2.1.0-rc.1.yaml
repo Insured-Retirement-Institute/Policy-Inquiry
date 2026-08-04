@@ -1,118 +1,11 @@
 openapi: 3.1.0
 info:
   title: Policy Inquiry
-  version: 1.1.5
+  version: 2.1.0-rc.1
   description: 'Provides comprehensive servicing and inquiry capabilities. These endpoints
     allow clients to retrieve detailed information about a policy, financial values,
     parties, transactions, dates, riders, funds, producers, systematic programs, payouts,
-    and underlying assets.
-
-
-    ---
-
-    ## Changelog v1.1.3
-
-    ### Critical Fixes (from v1.1.0 review)
-
-    - C-1: Removed 28+ orphan/shadow schemas
-
-    - C-2: Removed policyNumber/associatedFirmId from all response body schemas
-
-    - C-3: Cleaned leaked parameter-echo block from TransactionsList
-
-    - C-4: Fixed TaxWithholdingInstruction if/then guard
-
-    - C-6: Constrained npn to pattern ^[0-9]{1,10}$
-
-
-    ### Moderate Fixes
-
-    - M-1: Fixed required array reference after administrativeTransaction rename
-
-    - M-2: Updated example keys to match schema renames
-
-    - M-3: Moved pagination fields to SystematicProgramsList; added pagination to
-    PolicyProducers
-
-    - M-4: Removed npn from ProducerExternalIds.required (read API)
-
-    - M-5: Removed stray partyStatus/partyRole from Party; relaxed required
-
-    - M-5b: Fixed issueCountry enum (YAML boolean false -> ''NO''); deduplicated
-
-    - M-6: Added pattern ^[0-9]{9}$ to all taxId fields
-
-    - M-7: Added conditional field descriptions to SystematicProgram
-
-    - M-9: Fixed required reference incomePayments -> incomePayment
-
-    - M-12: Added minimum/maximum to riderBenefitPercent
-
-    - M-13: Changed numOfModalOccurrences to integer
-
-    - M-14: Renamed singular incomePayments -> incomePayment
-
-
-    ### Minor Fixes (v1.1.1)
-
-    - m-2: Removed correlationId from Error body (header-only)
-
-    - m-13: Renamed administrativeTransaction -> administrativeTransactions
-
-    - DD-1: Tightened firstName/middleName/lastName maxLength to 100 (DD alignment)
-
-
-    ### Round 2 Minor Fixes (v1.1.2)
-
-    - R2-m-1: Fixed stray space/period in info.description
-
-    - R2-m-2: Renamed ambiguous query param ''types'' -> ''transactionTypes''
-
-    - R2-m-7: Renamed participantParticipantRoleCode -> participantRoleCode in Rider
-
-
-    ### Round 4 Fixes (v1.1.3)
-
-    - DD-1: Reverted PartyRole enum to PascalCase (DD source-of-truth alignment)
-
-    - DD-2: Reverted PartyStatus to DD canonical form (NOTAPPROVED); added clarifying
-    description
-
-    - R4-M-1: Removed UnderlyingAssets.transactionId (query-param echo; IRI DFA compliance)
-
-    - R4-m-1: Fixed Rider example payloads to use renamed participantRoleCode field
-
-    - R4-m-3: Added maxLength constraints to classification pattern fields
-
-    - R4-m-4: Documented rationale for numeric-string typed fields
-
-
-
-    ### v1.1.5 Fixes
-
-    - Added explicit vocabulary descriptions to distinguish `PartyRole` filter values
-    from `PartyRelationship.relationships` response values
-
-    - Normalized `SystematicProgram.parties.partyRole` to PascalCase values aligned
-    with `PartyRole`
-
-    - Added top-level `PolicyProducer.producerNumber` and synchronized producer examples
-
-    - Normalized nested `rateLockInfo.rateType` example formatting to uppercase underscore
-    style
-
-    - Added explicit governance note that DD-approved legacy abbreviations are intentionally
-    retained for publication
-
-    - Preserved DD-aligned optionality, casing, and legacy abbreviations while tightening
-    documentation for governance traceability
-
-
-    ### Governance Notes
-
-    - Legacy DD abbreviations such as `modalAmt`, `modalPct`, `arrSubType`, `arrSource`,
-    and `riderFreeAmt` are intentionally retained as approved data-dictionary names
-    for this release and are not considered unresolved style defects.'
+    and underlying assets.'
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -133,6 +26,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicySummaryResponse'
@@ -176,6 +71,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyValueResponse'
@@ -221,6 +118,8 @@ paths:
       - $ref: '#/components/parameters/AssociatedFirmId'
       - $ref: '#/components/parameters/StartIndex'
       - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyFundsResponse'
@@ -266,6 +165,8 @@ paths:
       - $ref: '#/components/parameters/AssociatedFirmId'
       - $ref: '#/components/parameters/StartIndex'
       - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyPartiesResponse'
@@ -311,6 +212,8 @@ paths:
       - $ref: '#/components/parameters/PartyRole'
       - $ref: '#/components/parameters/PartyStatus'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       - name: partyId
         in: path
         required: true
@@ -363,6 +266,8 @@ paths:
       - $ref: '#/components/parameters/AssociatedFirmId'
       - $ref: '#/components/parameters/StartIndex'
       - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyProducersResponse'
@@ -408,6 +313,8 @@ paths:
       - $ref: '#/components/parameters/AssociatedFirmId'
       - $ref: '#/components/parameters/StartIndex'
       - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyRidersResponse'
@@ -451,6 +358,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       - name: riderId
         in: path
         required: true
@@ -501,6 +410,8 @@ paths:
       - $ref: '#/components/parameters/CorrelationIdHeader'
       - $ref: '#/components/parameters/PolicyNumber'
       - $ref: '#/components/parameters/AssociatedFirmId'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyDatesResponse'
@@ -546,6 +457,8 @@ paths:
       - $ref: '#/components/parameters/AssociatedFirmId'
       - $ref: '#/components/parameters/StartIndex'
       - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicySystematicProgramsResponse'
@@ -591,6 +504,8 @@ paths:
       - $ref: '#/components/parameters/AssociatedFirmId'
       - $ref: '#/components/parameters/StartIndex'
       - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyPayoutsResponse'
@@ -639,6 +554,8 @@ paths:
       - $ref: '#/components/parameters/TransactionTypes'
       - $ref: '#/components/parameters/StartIndex'
       - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyTransactionsResponse'
@@ -688,6 +605,8 @@ paths:
       - $ref: '#/components/parameters/TransactionId'
       - $ref: '#/components/parameters/StartIndex'
       - $ref: '#/components/parameters/Limit'
+      - $ref: '#/components/parameters/Cusip'
+      - $ref: '#/components/parameters/NsccParticipantId'
       responses:
         '200':
           $ref: '#/components/responses/getPolicyUnderlyingAssetsResponse'
@@ -835,6 +754,28 @@ components:
       schema:
         type: integer
         minimum: 0
+    Cusip:
+      name: cusip
+      in: query
+      required: false
+      description: >
+        CUSIP identifier used to uniquely identify the policy when the
+        policyNumber alone is not globally unique.
+      schema:
+        type: string
+        minLength: 9
+        maxLength: 9
+        pattern: ^[0-9]{3}[A-Z0-9]{5}[0-9]$
+    NsccParticipantId:
+      name: nsccParticipantId
+      in: query
+      required: true
+      description: >
+        Unique identifier for the submitting firm or participant within
+        the NSCC network.
+      schema:
+        type: string
+        maxLength: 100
   responses:
     BadRequestError:
       description: Bad Request
@@ -983,13 +924,12 @@ components:
             $ref: '#/components/schemas/PolicySummary'
           example:
             effectiveDate: '2021-01-15'
-            cusip: 78462F103
             carrierId: CARR123
             carrierName: Contoso Life & Annuity
             policyLastRefreshDateTime: '2026-03-06T16:30:00Z'
             product:
               planName: Fixed Indexed Annuity Premier
-              productType: INDEXED
+              productType: FIXED_INDEXED
               shortName: FIA Premier
               planCode: FIAPRM01
             qualificationType: IRA Rollover
@@ -1000,7 +940,6 @@ components:
               subCategory: COLLATERAL_ASSIGNMENT
               reason: Collateral Assignment
               definition: Collateral assignment on the contract
-            issueType: FULLUNDERWRITING
             issueState: NC
             currency: USD
     getPolicyValueResponse:
@@ -1028,9 +967,9 @@ components:
               - phone
               - mail
               authorizationEntities:
-              - authorizationEntity: Power of Attorney – Jane Doe
+              - authorizationEntity: Power of Attorney Jane Doe
                 isAllAgentsAuthorized: false
-              - authorizationEntity: Agent – Sarah Smith
+              - authorizationEntity: Agent Sarah Smith
                 isAllAgentsAuthorized: false
               authorizationTransaction:
                 isAuthorizationSignatureRequired: true
@@ -1699,31 +1638,31 @@ components:
       - carrierId
       - currency
       - effectiveDate
-      - issueType
       - policyLastRefreshDateTime
       - policyStatus
       - product
       properties:
         effectiveDate:
+          description: Represents the date on which the policy or contract became active and coverage officially began.
           type: string
           format: date
-        cusip:
-          type: string
-          minLength: 9
-          maxLength: 9
-          pattern: ^[0-9]{3}[A-Z0-9]{5}[0-9]$
         carrierId:
+          description: Carrier identifier
           type: string
           maxLength: 10
         carrierName:
+          description: Carrier Name
           type: string
           maxLength: 200
         policyLastRefreshDateTime:
+          description: Policy last refresh date and time
           type: string
           format: date-time
         product:
+          description: Product metadata for this policy
           $ref: '#/components/schemas/Product'
         qualificationType:
+          description: IRS qualification type of the policy
           type: string
           enum:
           - Non-Qualified
@@ -1755,6 +1694,7 @@ components:
           - Roth 403b
           - Roth 457
         policyStatus:
+          description: Current policy status
           type: string
           enum:
           - PENDINGISSUED
@@ -1763,28 +1703,26 @@ components:
           - SURRENDERED
           - TERMINATED
         hasRestriction:
+          description: Restriction status on the policy
           type: boolean
         restrictions:
           type: array
           description: Required when `hasRestriction` is true.
           items:
             $ref: '#/components/schemas/RestrictionReason'
-        issueType:
-          type: string
-          enum:
-          - FULLUNDERWRITING
-          - SIMPLIFIED
-          - GUARANTEED
         issueState:
+          description: Values represent USPS state, territory, and military mail codes.
           type: string
           pattern: ^[A-Z]{2}$
         currency:
+          description: Currency code
           type: string
           pattern: ^[A-Z]{3}$
       allOf:
       - if:
           properties:
             hasRestriction:
+              description: Restriction status on the policy
               const: true
           required:
           - hasRestriction
@@ -1819,6 +1757,7 @@ components:
           description: Enum values use underscore-delimited tokens for consistency
             with the broader IRI style convention.
         subCategory:
+          description: Provides a more granular classification of the restriction, indicating the specific condition or rule that is impacting the policy (e.g., transfer restriction, trading limits, or conflicting transactions).
           type: string
           enum:
           - TRANSFER_NOT_ELIGIBLE
@@ -1859,14 +1798,17 @@ components:
           - FUND_SPECIFIC_INVEST_RESTRICTION
           - WITHDRAWAL_RMD_CARRIER_CALC
         reason:
+          description: Short human-readable reason label.
           type: string
           minLength: 1
           maxLength: 200
         definition:
+          description: Detailed definition describing the restriction.
           type: string
           minLength: 1
           maxLength: 500
     Product:
+      description: Product metadata for this policy
       type: object
       required:
       - planName
@@ -1876,28 +1818,44 @@ components:
         planName:
           type: string
           maxLength: 200
+          description: Carrier plan or marketing name.
         productType:
+          description: Product type.
           type: string
           enum:
-          - FIXED
-          - VARIABLE
-          - INDEXED
-          - IMMEDIATE
-          - DEFERRED
+            - FIXED_DEFERRED
+            - VARIABLE_DEFERRED
+            - CONTINGENT_DEFERRED
+            - FIXED_INDEXED
+            - VARIABLE_INDEXED
+            - REGISTERED_INDEX_LINKED
+            - FIXED_IMMEDIATE_INCOME
+            - VARIABLE_IMMEDIATE_INCOME
+            - FIXED_DEFERRED_INCOME
+            - VARIABLE_DEFERRED_INCOME
+            - IMPAIRED_RISK_ANNUITIES
         shortName:
+          description: Short display name
           type: string
           maxLength: 100
         planCode:
+          description: The Plan Code is a carrier-assigned unique identifier used to distinguish a specific product, rate structure, and version of a life insurance or annuity policy. It ensures accurate policy tracking, pricing, and administration
           type: string
           pattern: ^[A-Za-z0-9]{1,50}$
     Error:
       type: object
       properties:
+        httpStatus:
+          type: integer
+          description: HTTP status code associated with this error
+          minimum: 400
+          maximum: 599
         code:
           type: string
           description: A structured error code <domain>.<category>.<subcategory>
           pattern: ^[a-zA-Z]+\.[a-zA-Z]+\.[a-zA-Z]+$
         timestamp:
+          description: Create or Update timestamp of transaction event
           type: string
           format: date-time
         message:
@@ -2062,8 +2020,6 @@ components:
               maximum: 9999999999.99
         withdrawalValues:
           type: object
-          required:
-          - yearToDateFreeWithdrawalAmount
           properties:
             totalWithdrawalAmount:
               type: number
@@ -2157,15 +2113,18 @@ components:
       type: object
       properties:
         startIndex:
+          description: Zero-based index of the first record to return.
           type: integer
           minimum: 0
         itemsCount:
           type: integer
           minimum: 0
         totalItemsCount:
+          description: Total number of records available that match the request criteria, independent of pagination.
           type: integer
           minimum: 0
         funds:
+          description: Represents the collection of funds or sub-accounts associated with the policy, including their balances, values, and investment characteristics.
           type: array
           items:
             type: object
@@ -2176,6 +2135,7 @@ components:
             - fundValuationDate
             properties:
               fundAccountType:
+                description: Indicates the classification of the fund within the policy (e.g., fixed, variable, indexed)
                 type: string
                 enum:
                 - FIXED
@@ -2185,33 +2145,42 @@ components:
                 - LOAN
                 - OTHER
               fundId:
+                description: Fund identifier
                 type: string
                 pattern: ^[A-Za-z0-9._-]{1,50}$
               fundName:
+                description: Fund display name
                 type: string
                 maxLength: 200
               fundPrice:
+                description: Latest tradable price per fund unit
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               fundValuationDate:
+                description: As-of -date
                 type: string
                 format: date
               generalLedgerFundCode:
+                description: General ledger fund code (if provided)
                 type: string
                 pattern: ^[A-Za-z0-9._-]{1,50}$
               totalFundValue:
+                description: Total current value in this fund
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               interestGuaranteedPeriod:
+                description: Guaranteed interest period (years)
                 type: integer
                 minimum: 0
               guaranteedMinimumInterestRate:
+                description: Guaranteed minimum interest rate
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               assetClass:
+                description: High-level asset class of the fund/sub-account (e.g., FIXED, VARIABLE, INDEXED).
                 type: string
                 enum:
                 - FIXED
@@ -2222,12 +2191,15 @@ components:
                 - EQUITY
                 - OTHER
               productCode:
+                description: Unique fund/sub-account code for the product (carrier’s fund code).
                 type: string
                 pattern: ^[A-Za-z0-9._-]{1,50}$
               carrierCode:
+                description: Identifier for the carrier/source used to link to carrier fund manager/reference data.
                 type: string
                 pattern: ^[A-Za-z0-9._-]{1,50}$
               investmentType:
+                description: 'Investment type for the fund (often aligns to fundAccountType: FIXED / VARIABLE / INDEXED).'
                 type: string
                 enum:
                 - FIXED
@@ -2238,38 +2210,49 @@ components:
                 - SEGMENT
                 - OTHER
               openDate:
+                description: Date when the fund/sub-account was first opened on the policy.
                 type: string
                 format: date
               availableFundsAmount:
+                description: Represents the amount currently available for transfer or withdrawal from the fund, after considering restrictions, surrender charges, or product rules.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               capRate:
+                description: cap rate applied to index crediting.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               isTransferSendAllowed:
+                description: Indicates whether funds can be transferred into this fund based on restrictions, or fund status.
                 type: boolean
               isWithdrawalsAllowed:
+                description: True if withdrawals from this fund/sub-account are allowed.
                 type: boolean
               capAmount:
+                description: cap amount (if product uses $ cap instead of %).
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               isTransferDestAllowed:
+                description: Indicates whether funds can be transferred out of this fund based on fund-level restrictions.
                 type: boolean
               guaranteedInterestRate:
+                description: Guaranteed interest rate for fixed/indexed accounts (if applicable).
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               fundRestrictReason:
+                description: Reason why the fund is restricted (free-text or code display).
                 type: string
                 maxLength: 250
               bonusRate:
+                description: Bonus rate currently declared for the fund/sub-account (if applicable).
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               financialActivity:
+                description: Indicates the type of financial transaction or activity that impacted the fund, such as premium allocation, transfer, fee deduction, or interest crediting.
                 type: string
                 enum:
                 - PREMIUM_ALLOCATION
@@ -2287,29 +2270,37 @@ components:
                 - MVA_ADJUSTMENT
                 - OTHER
               isFinancialActivityReversed:
+                description: True indicates that the financial activity has been reversed.
                 type: boolean
               appliesToCoverageId:
+                description: For annuity, reference to the rider object that the financial activity applies.
                 type: string
                 maxLength: 200
               arrangementRefId:
+                description: Reference to the arrangement object that the financial activity applies.
                 type: string
                 maxLength: 200
               financialActivityType:
+                description: Enumeration value for the type of financial activity.
                 type: string
                 enum:
                 - PERFORMANCE_LOCK
               financialActivityGrossAmount:
+                description: The financial activity gross amount.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               financialEffectiveDate:
+                description: The financial activity effective date.
                 type: string
                 format: date
               participationRate:
+                description: participation rate used in index crediting.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               participationDownsideRate:
+                description: downside participation rate (if indexed strategy supports it).
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
@@ -2322,6 +2313,7 @@ components:
                 - endDate
                 properties:
                   fundRestrictReason:
+                    description: Reason why the fund is restricted (free-text or code display).
                     type: string
                     enum:
                     - CLOSED_TO_NEW_TRANSFER_IN
@@ -2335,9 +2327,11 @@ components:
                     - CARRIER_RESTRICTION
                     - OTHER
                   startDate:
+                    description: The date when the systematic program begins executing payments or transfers (entered by user).
                     type: string
                     format: date
                   endDate:
+                    description: The date Special Program ends (Entered by user or determined by LPS based on Account Value)
                     type: string
                     format: date
               transferDestRestrictInfo:
@@ -2349,6 +2343,7 @@ components:
                 - endDate
                 properties:
                   fundRestrictReason:
+                    description: Reason why the fund is restricted (free-text or code display).
                     type: string
                     enum:
                     - TRANSFER_OUT_NOT_ALLOWED
@@ -2362,6 +2357,7 @@ components:
                     - CARRIER_RESTRICTION
                     - OTHER
                   startDate:
+                    description: The date when the systematic program begins executing payments or transfers (entered by user).
                     type: string
                     format: date
                   endDate:
@@ -2373,30 +2369,37 @@ components:
                 description: Sub-account term period. String type retained for carrier
                   code compatibility.
               bufferRate:
+                description: buffer rate (loss buffer) for buffered strategies.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               capThresholdRate:
+                description: threshold rate used with cap/trigger structures.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               floorRate:
+                description: floor rate (min crediting).
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               mvaRate:
+                description: Market value adjustment rate applied to this fund/sub-account (if applicable).
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               marginRate:
+                description: margin/spread rate applied in index crediting.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               triggerRate:
+                description: trigger rate used for trigger strategies.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               indexCreditingMethod:
+                description: describes the crediting method and any related mode fields.
                 type: string
                 enum:
                 - ANNUAL_POINT_TO_POINT
@@ -2416,6 +2419,7 @@ components:
                 - UNCAPPED
                 - OTHER
               indexCreditingMode:
+                description: index crediting mode (e.g., POINT_TO_POINT, MONTHLY_AVG) if applicable.
                 type: string
                 enum:
                 - POINT_TO_POINT
@@ -2426,6 +2430,7 @@ components:
                 - TERM_END
                 - OTHER
               indexType:
+                description: index identifier/type (e.g., S&P 500, custom index).
                 type: string
                 maxLength: 100
               termPeriod:
@@ -2434,25 +2439,31 @@ components:
                 description: Term period value. String type retained for carrier-specific
                   encoding.
               trackingValue:
+                description: tracking value used for indexed crediting calculations.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               initialIndexBenchmarkValue:
+                description: starting benchmark value for the current/initial term.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               currentIndexBenchmarkValue:
+                description: current benchmark value as-of date (if provided).
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               minimumCapRate:
+                description: minimum cap rate (if product guarantees a minimum cap).
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               indexCreditingDate:
+                description: next/last crediting date for the index term.
                 type: string
                 format: date
               isLockFeatureEnabled:
+                description: True if the fund has a lock feature enabled (rate lock/index lock).  If this is true then rateLockInfo value is required, else it is not required.
                 type: boolean
               indexOptionPeriod:
                 type: string
@@ -2460,14 +2471,17 @@ components:
                 description: Index option period. String type retained for carrier
                   code compatibility.
               accruedInterest:
+                description: Accrued interest amount on the fund/sub-account (if carrier provides).
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               thresholdPercent:
+                description: threshold percent used with threshold strategies.
                 type: number
                 minimum: 0
                 maximum: 9999999999.99
               rateTier:
+                description: Rate tiering details (tier thresholds and applied tier).
                 type: object
                 required:
                 - indexReturnPercent
@@ -2475,21 +2489,23 @@ components:
                 - rateType
                 properties:
                   indexReturnPercent:
+                    description: The return rate calculated using the current index benchmark value and initial index benchmark value.
                     type: number
                     minimum: 0
                     maximum: 100
                   tieredRate:
+                    description: Rate that pays interest at increasingly higher rates as the account balance increases.
                     type: number
                     minimum: 0
                     maximum: 9999999999.99
                   rateType:
+                    description: Identifies the type of rate that has been locked for the fund or sub‑account.
                     type: string
                     enum:
                     - PARTICIPATION
                     - DOWNSIDE_PARTICIPATION
-                    description: Enum values normalized to uppercase underscore style
-                      for consistency.
               fundSegments:
+                description: Represents segment-level details within a fund.
                 type: array
                 items:
                   type: object
@@ -2508,72 +2524,91 @@ components:
                   - endDate
                   properties:
                     segmentId:
+                      description: Segment identifier.
                       type: string
                       pattern: ^[A-Za-z0-9._-]{1,100}$
                     fundId:
+                      description: Fund identifier
                       type: string
                       maxLength: 200
                       pattern: ^[A-Za-z0-9._-]{1,50}$
                     originalDepositAmount:
+                      description: Original deposit amount for the segment.
                       type: number
                       minimum: 0
                       maximum: 9999999999.99
                     originalDepositDate:
+                      desscription: Indicates the original date on which the segment investment was create.
                       type: string
                       format: date
                     depositDate:
+                      description: Represents the date on which funds were allocated to the segment.
                       type: string
                       format: date
                     depositAmount:
+                      description: Specifies the amount allocated to the segment during a deposit or allocation event.
                       type: number
                       minimum: 0
                       maximum: 9999999999.99
                     currentAmount:
+                      description: Represents the current value of the segment, including any gains, losses, or credited interest since the original deposit.
                       type: number
                       minimum: 0
                       maximum: 9999999999.99
                     renewalDate:
+                      description: Indicates the date on which the segment completes its current investment term and resets or renews.
                       type: string
                       format: date
                     numberOfUnits:
+                      description: Number of units (if applicable).
                       type: number
                       minimum: 0
                     sweepAccountId:
+                      description: Identifies the associated sweep account or holding account where funds may automatically move before or after allocation to segments.
                       type: string
                       pattern: ^[A-Za-z0-9._-]{1,100}$
                     interestEarningAmount:
+                      description: Represents the portion of the segment balance that is eligible for interest crediting based on the product’s crediting methodology.
                       type: number
                       minimum: 0
                       maximum: 9999999999.99
                     appliedInterestRate:
+                      description: Specifies the interest rate applied to the segment for calculating credited earnings during the segment term.
                       type: number
                       minimum: 0
                       maximum: 100
                     startingPrice:
+                      description: Represents the index or benchmark value at the start of the segment term.
                       type: number
                       minimum: 0
                       maximum: 9999999999.99
                     startingPriceDate:
+                      description: Indicates the date on which the starting index or benchmark value was recorded for the segment.
                       type: string
                       format: date
                     endingPrice:
+                      description: Represents the index or benchmark value at the end of the segment.
                       type: number
                       minimum: 0
                       maximum: 9999999999.99
                     endingPriceDate:
+                      description: Represents the date on which the ending index or benchmark value was captured for the segment.
                       type: string
                       format: date
                     startDate:
+                      description: The date when the systematic program begins executing payments or transfers (entered by user).
                       type: string
                       format: date
                     endDate:
                       type: string
                       format: date
                     maxPrice:
+                      description: Maximum index price observed in segment period.
                       type: number
                       minimum: 0
                       maximum: 9999999999.99
                     maxPriceDate:
+                      description: Indicates the date on which the maximum index or benchmark value occurred during the segment term.
                       type: string
                       format: date
               rateLockInfo:
@@ -2581,15 +2616,19 @@ components:
                 description: Required when `isLockFeatureEnabled` is true.
                 properties:
                   rateType:
+                    description: Identifies the type of rate that has been locked for the fund or sub‑account.
                     type: string
                     maxLength: 100
                   lockStartDate:
+                    description: The calendar date on which the rate lock becomes effective. From this date forward, the fund’s rate or crediting method remains fixed for the duration of the lock period. Formatted as YYYY‑MM‑DD.
                     type: string
                     format: date
                   lockEndDate:
+                    description: The calendar date on which the rate lock expires. After this date, the crediting rate or method may reset or adjust according to product rules. Formatted as YYYY‑MM‑DD.
                     type: string
                     format: date
                   lockPeriod:
+                    description: The total duration of the applied rate lock, expressed as a number of days. Represents the full length of time from lockStartDate through lockEndDate during which the rate remains fixed.
                     type: number
                     minimum: 0
                 required:
@@ -2600,6 +2639,7 @@ components:
             - if:
                 properties:
                   isTransferSendAllowed:
+                    description: Indicates whether funds can be transferred into this fund based on restrictions, or fund status.
                     const: false
                 required:
                 - isTransferSendAllowed
@@ -2613,6 +2653,7 @@ components:
             - if:
                 properties:
                   isTransferDestAllowed:
+                    description: Indicates whether funds can be transferred out of this fund based on fund-level restrictions.
                     const: false
                 required:
                 - isTransferDestAllowed
@@ -2626,6 +2667,7 @@ components:
             - if:
                 properties:
                   isLockFeatureEnabled:
+                    description: True if the fund has a lock feature enabled (rate lock/index lock).  If this is true then rateLockInfo value is required, else it is not required.
                     const: true
                 required:
                 - isLockFeatureEnabled
@@ -2640,15 +2682,19 @@ components:
       type: object
       properties:
         startIndex:
+          description: Zero-based index of the first record to return.
           type: integer
           minimum: 0
         itemsCount:
+          description: Number of records included in the current response page.
           type: integer
           minimum: 0
         totalItemsCount:
+          description: Total number of records available that match the request criteria, independent of pagination.
           type: integer
           minimum: 0
         parties:
+          description: Represents all individuals or entities associated with the policy, including their identity, relationship to the contract, and role in policy servicing or benefit distribution.
           type: array
           items:
             $ref: '#/components/schemas/Party'
@@ -2661,6 +2707,7 @@ components:
       - type: object
         properties:
           paymentForm:
+            description: Party-level payment form. `EXCHANGE` is retained only for party-level exchange servicing scenarios; recurring disbursement schemas intentionally use the narrower ACH/EFT/CHECK/WIRE/DTCC vocabularies.
             type: string
             enum:
             - DTCC
@@ -2668,34 +2715,39 @@ components:
             - CHECK
             - WIRE
             - EXCHANGE
-            description: Party-level payment form. `EXCHANGE` is retained only for
-              party-level exchange servicing scenarios; recurring disbursement schemas
-              intentionally use the narrower ACH/EFT/CHECK/WIRE/DTCC vocabularies.
           allocationPercentage:
+            description: Specifies the percentage share of benefits, proceeds, or transaction allocation assigned to the party
             type: number
             minimum: 0
             maximum: 100
           bank:
+            description: Financial institution details.
             $ref: '#/components/schemas/Bank'
           address:
+            description: Physical or mailing address details.
             $ref: '#/components/schemas/Address'
           phones:
+            description: Phone details
             type: array
             items:
               $ref: '#/components/schemas/Phone'
           emails:
+            description: Email details
             type: array
             items:
               $ref: '#/components/schemas/Email'
           identifications:
+            description: Identifications
             type: array
             items:
               $ref: '#/components/schemas/Identification'
           taxWithholdingInstructions:
+            description: List of tax withholding instruction entries.
             type: array
             items:
               $ref: '#/components/schemas/TaxWithholdingInstruction'
           deathDetails:
+            description: Details regarding the death of the insured/annuitant
             $ref: '#/components/schemas/DeathDetails'
       - anyOf:
         - $ref: '#/components/schemas/IndividualParty'
@@ -2703,6 +2755,7 @@ components:
       - if:
           properties:
             paymentForm:
+              description: Party-level payment form. `EXCHANGE` is retained only for party-level exchange servicing scenarios; recurring disbursement schemas intentionally use the narrower ACH/EFT/CHECK/WIRE/DTCC vocabularies.
               enum:
               - ACH
               - WIRE
@@ -2716,6 +2769,7 @@ components:
       type: object
       properties:
         producers:
+          description: Represents the set of producers associated with the policy, including their identifying information and commission-related attributes
           type: array
           items:
             $ref: '#/components/schemas/PolicyProducer'
@@ -2735,11 +2789,14 @@ components:
       type: object
       properties:
         externalIds:
+          description: External identifier
           $ref: '#/components/schemas/ProducerExternalIds'
         commissionOption:
+          description: Commission option on the contract
           type: string
           maxLength: 50
         commission:
+          description: Defines commission-related details assigned to the producer, including identifiers and allocation percentages that determine how compensation is distributed for the policy
           $ref: '#/components/schemas/ProducerCommission'
         producerNumber:
           type: string
@@ -2750,25 +2807,31 @@ components:
       type: object
       properties:
         npn:
+          description: National Producer Number.
           type: string
           maxLength: 10
           pattern: ^[0-9]{1,10}$
         crdNumber:
+          description: Central Registration Depository number.
           type: string
           pattern: ^[0-9]{1,12}$
         agencyId:
+          description: Identifier for the agency associated with the producer.
           type: string
           pattern: ^[0-9]{1,18}$
         firmId:
+          description: Identifier for the brokerâ€‘dealer or parent firm affiliated with the producer.
           type: string
           pattern: ^[0-9]{1,18}$
     ProducerCommission:
       type: object
       properties:
         commissionIdentifier:
+          description: Identifier for the commission schedule or contract tied to the producer.
           type: string
           pattern: ^[A-Za-z0-9._-]{1,100}$
         commissionSplitPercent:
+          description: Represents the percentage share of total commission allocated to the producer, used when multiple producers are associated with the policy.
           type: number
           minimum: 0
           maximum: 100
@@ -2777,39 +2840,51 @@ components:
       description: Policy date fields for the contract.
       properties:
         policyStartDate:
+          description: The Policy Start Date refers to the official date on which the policy becomes effective and coverage begins. This date is critical for determining premium payments, coverage eligibility, policy      anniversaries, and contractual obligations. 
           type: string
           format: date
         applicationDate:
+          description: The Application Date, also referred to as the Policy Sign Date, is the date when the policyholder completes and signs the insurance or annuity application. This marks the official request for coverage but does not necessarily mean the policy is active yet.
           type: string
           format: date
         applicationReceivedDate:
+          description: The Application Received Date refers to the date when Zinnia (or the designated insurance company/administrator) officially receives the completed insurance or annuity application.
           type: string
           format: date
         issueDate:
+          description: The Policy Issue Date, also known as the Policy Launch Date, is the date when the insurance company officially issues the policy to the client. This occurs after the application is approved, the insured accepts the offer, and payment information is provided. It marks the formal activation of the policy and triggers policy delivery.
           type: string
           format: date
         policyDeliveryDate:
+          description: The Policy Delivery Date refers to the date when the policyholder is officially notified that their policy is available, either through an online portal, email, SMS, or physical mail. This date is critical because it marks the start of the free look period, allowing the policyholder to review the contract and cancel if needed.
           type: string
           format: date
         previousPolicyAnniversaryDate:
+          description: The Previous Policy Anniversary Date refers to the most recent past annual recurrence of the Policy Start Date. This date is used for tracking past premium payments, benefit updates, policy renewals, and cash value calculations.
           type: string
           format: date
         previousPolicyMonthiversaryDate:
+          description: The Previous Policy Monthiversary Date refers to the most recent past monthly recurrence of the Policy Start Date. It is used for tracking monthly premium payments, cost of insurance (COI) deductions, cash value updates, and policy charges.
           type: string
           format: date
         nextAnniversaryDate:
+          description: The Next Policy Anniversary Date refers to the upcoming annual recurrence of the policyâ€™s start date. It is based on the Policy Start Date and marks key policy milestones such as premium due dates, cash value updates, policy renewals, and benefit adjustments.
           type: string
           format: date
         maturityDate:
+          description: The Policy Maturity Date refers to the date when a life insurance policy reaches its maturity or an annuity contract reaches its maximum annuitization age. It is based on the Policy Start Date and determines when benefits become payable or coverage ends. 
           type: string
           format: date
         policyTerminationDate:
+          description: The Policy Termination Date is the date when a life insurance or annuity policy officially ends, meaning coverage ceases, and no further benefits or obligations exist under the contract. The reason for termination may vary, including policy lapse, surrender, maturity, or claim payout.
           type: string
           format: date
         initialPaymentExpiryDate:
+          description: The Initial Payment Amount Expiration Date refers to the deadline by which the initial premium payment must be made to keep the policy offer valid and ensure the policy goes into effect., if not received Policy will be Canceled due to no Premium Set at Issuance.
           type: string
           format: date
         nextMonthiversaryDate:
+          description: The Next Policy Monthiversary Date refers to the same day of each month that corresponds to the Policy Start Date, marking the monthly recurrence of the policy. It is used for monthly premium payments, cost deductions, cash value calculations, and interest crediting.
           type: string
           format: date
       required:
@@ -2819,16 +2894,20 @@ components:
       type: object
       properties:
         systematicPrograms:
+          description: Systematic Programs
           type: array
           items:
             $ref: '#/components/schemas/SystematicProgram'
         startIndex:
+          description: Zero-based index of the first record to return.
           type: integer
           minimum: 0
         itemsCount:
+          description: Number of records included in the current response page.
           type: integer
           minimum: 0
         totalItemsCount:
+          description: Total number of records available that match the request criteria, independent of pagination.
           type: integer
           minimum: 0
     SystematicProgram:
@@ -2850,6 +2929,7 @@ components:
       - arrSubType
       properties:
         arrangementType:
+          description: Identifies the high-level type of systematic program set up on the policy, such as payment, withdrawal, loan repayment, RMD, or payout.
           type: string
           enum:
           - PAYMENT
@@ -2858,6 +2938,7 @@ components:
           - REQUIREDMINIMUMDISTRIBUTION
           - PAYOUT
         allocationOptionType:
+          description: Specifies the method used to allocate the withdrawal amount within the policy.
           type: string
           enum:
           - PRORATA
@@ -2869,6 +2950,7 @@ components:
           - PECKINGORDER
           - EARNINGSONLY
         paymentForm:
+          description: Party-level payment form. `EXCHANGE` is retained only for party-level exchange servicing scenarios; recurring disbursement schemas intentionally use the narrower ACH/EFT/CHECK/WIRE/DTCC vocabularies. Recurring systematic-program payment form. `EFT` is valid here; `EXCHANGE` is intentionally excluded because exchange handling is party-specific rather than a recurring disbursement mode.
           type: string
           enum:
           - DTCC
@@ -2876,10 +2958,8 @@ components:
           - ACH
           - CHECK
           - WIRE
-          description: Recurring systematic-program payment form. `EFT` is valid here;
-            `EXCHANGE` is intentionally excluded because exchange handling is party-specific
-            rather than a recurring disbursement mode.
         frequency:
+          description: Indicates how often the systematic program is scheduled to run, such as daily, every two weeks, monthly, semiannual, quarterly, annual, or single payment.
           type: string
           enum:
           - DAILY
@@ -2890,21 +2970,26 @@ components:
           - ANNUAL
           - SINGLEPAYMENT
         startDate:
+          description: The date when the systematic program begins executing payments or transfers (entered by user).
           type: string
           format: date
         endDate:
           type: string
           format: date
         previousProgramDate:
+          description: The last date on which a systematic transaction was processed
           type: string
           format: date
         optedNextProgramDate:
+          description: A user-selected or modified next payment date, different from the scheduled one
           type: string
           format: date
         nextProgramDate:
+          description: The date on which the next payment is scheduled
           type: string
           format: date
         amountType:
+          description: Indicates how the scheduled amount is defined for the systematic program, such as a fixed amount, percentage, maximum available amount, free withdrawal amount, withdrawal until basis, earnings only, pro rata amount, or modified earnings only.
           type: string
           enum:
           - AMOUNT
@@ -2929,9 +3014,11 @@ components:
           minimum: 0
           maximum: 100
         externalArrangementId:
+          description: Identifier used to uniquely recognize an existing systematic program (e.g., SWP) associated with a contract. This ID enables the system to determine whether a systematic arrangement already exists and supports subsequent updates, modifications, or termination of that arrangement.
           type: string
           maxLength: 100
         numOfModalOccurrences:
+          description: Amount value used the mode.
           type: integer
           minimum: 0
           maximum: 9999999999
@@ -2946,6 +3033,7 @@ components:
           maximum: 100
           description: Legacy DD abbreviation retained; represents modal percentage.
         sourceTransferAmtType:
+          description: Source transfer type.
           type: string
           enum:
           - AMOUNT
@@ -2955,6 +3043,7 @@ components:
           - ALL_FUNDS
           - OTHER
         destTransferAmtType:
+          description: Destination transfer type.
           type: string
           enum:
           - AMOUNT
@@ -2971,6 +3060,7 @@ components:
           description: Legacy DD abbreviation retained; represents arrangement source.
             Arrangement source retained per DD naming.
         taxWithholdingInstructions:
+          description: List of tax withholding instruction entries.
           type: array
           items:
             $ref: '#/components/schemas/TaxWithholdingInstruction'
@@ -2985,9 +3075,11 @@ components:
           pattern: ^(?:[1-9]|[12][0-9]|3[01])$
           description: Day of month for the scheduled arrangement.
         productCode:
+          description: Unique fund/sub-account code for the product (carrier’s fund code).
           type: string
           pattern: ^[A-Za-z0-9._-]{1,50}$
         parties:
+          description: Represents all individuals or entities associated with the policy, including their identity, relationship to the contract, and role in policy servicing or benefit distribution.
           type: array
           items:
             type: object
@@ -3006,21 +3098,26 @@ components:
                 description: Role of the party within the systematic program. Uses
                   PascalCase values to align with the PartyRole filter vocabulary.
               taxId:
+                description: Tax Identification Number for the party (individual or entity).
                 type: string
                 maxLength: 9
                 pattern: ^[0-9]{9}$
                 minLength: 9
               percentage:
+                description: Percentage rate to withhold. Mutually exclusive with dollar; provide one, not both.
                 type: number
                 minimum: 0
                 maximum: 100
               bankId:
+                description: Bank identifier.
                 type: string
                 maxLength: 100
               addressId:
+                description: Address identifier.
                 type: string
                 maxLength: 100
               paymentForm:
+                description: Party-level payment form. `EXCHANGE` is retained only for party-level exchange servicing scenarios; recurring disbursement schemas intentionally use the narrower ACH/EFT/CHECK/WIRE/DTCC vocabularies.
                 type: string
                 enum:
                 - DTCC
@@ -3032,6 +3129,7 @@ components:
       - if:
           properties:
             amountType:
+              description: Indicates how the scheduled amount is defined for the systematic program, such as a fixed amount, percentage, maximum available amount, free withdrawal amount, withdrawal until basis, earnings only, pro rata amount, or modified earnings only.
               const: AMOUNT
           required:
           - amountType
@@ -3044,6 +3142,7 @@ components:
       - if:
           properties:
             amountType:
+              description: Indicates how the scheduled amount is defined for the systematic program, such as a fixed amount, percentage, maximum available amount, free withdrawal amount, withdrawal until basis, earnings only, pro rata amount, or modified earnings only.
               const: PERCENTAGE
           required:
           - amountType
@@ -3056,6 +3155,7 @@ components:
       - if:
           properties:
             amountType:
+              description: Indicates how the scheduled amount is defined for the systematic program, such as a fixed amount, percentage, maximum available amount, free withdrawal amount, withdrawal until basis, earnings only, pro rata amount, or modified earnings only.
               enum:
               - MAX
               - FREEWITHDRAWALAMOUNT
@@ -3077,16 +3177,15 @@ components:
       required:
       - timestamp
       - effectiveDate
-      - exerciseDate
-      - terminationDate
       - status
       - coverageId
-      - amount
       properties:
         timestamp:
+          description: Create or Update timestamp of transaction event
           type: string
           format: date-time
         riderType:
+          description: Indicates whether the record represents the base contract or a specific rider/benefit feature attached to the policy. This value is used to categorize riders for servicing and display purposes and is independent of transaction events or statuses.
           type: string
           enum:
           - BASE
@@ -3106,28 +3205,36 @@ components:
           - OTHER
           - UNKNOWN
         riderName:
+          description: The specific name of the rider as designated by the insurance company. For example - Terminal Illness Accelerated Death Benefit
           type: string
           maxLength: 200
         isRiderElected:
+          description: Indicates the election status of the rider on the policy, specifying whether the policyholder has formally elected to include the rider
           type: boolean
         riderCode:
+          description: A unique identifier or alphanumeric code assigned to the rider
           type: string
           pattern: ^[A-Za-z0-9._-]{1,50}$
         underwritingStatus:
+          description: Indicates underwriting decision status associated with the policy or rider.
           type: string
           enum:
           - APPROVED
           - DECLINED
         effectiveDate:
+          description: Represents the date on which the policy or contract became active and coverage officially began.
           type: string
           format: date
         exerciseDate:
+          description: The date the policyholder elects to use or activate the rider benefit
           type: string
           format: date
         terminationDate:
+          description: The date on which the rider coverage ends/ is terminated
           type: string
           format: date
         status:
+          description: A Feature Status in life insurance and annuities indicates the current state or activation condition of a specific feature within a policy or contract. It reflects whether a feature is active, inactive, pending, or restricted, helping insurers, agents, and policyholders track policy functionality
           type: string
           enum:
           - ACTIVE
@@ -3135,26 +3242,32 @@ components:
           - PENDING
           - SUSPENDED
         coverageId:
+          description: The Coverage ID is a unique identifier assigned to a specific coverage type or benefit within an insurance policy. It helps insurance companies, agents, and policyholders track and differentiate multiple coverage components within a single policy 
           type: string
           pattern: ^[A-Za-z0-9._-]{1,100}$
-        amount:
+        amount: 
+          description: The total benefit amount the rider provides (separate from the base policy’s coverage.)
           type: number
           minimum: 0
           maximum: 9999999999.99
         annualBenefitAmount:
+          description: The maximum benefit amount of the benefit base, policyholder can withdraw each year
           type: number
           minimum: 0
           maximum: 9999999999.99
         riderBenefitAmount:
+          description: The Total Benefit Amount represents the maximum guaranteed amount available under the annuity rider over the life of the contract/rider
           type: number
           minimum: 0
           maximum: 9999999999.99
         riderBenefitPercent:
+          description: The fixed percentage applied to the Rider Benefit Amount to calculate the annual guaranteed benefit amount
           type: number
           multipleOf: 0.01
           minimum: 0
           maximum: 100
         riderParticipants:
+          description: The parties participating in the rider.
           type: array
           items:
             type: object
@@ -3162,57 +3275,71 @@ components:
             - taxId
             properties:
               insuredAgeAtIssue:
+                description: The age of the insured at the time the rider was issued.
                 type: integer
                 format: int32
                 minimum: 0
                 maximum: 150
               taxId:
+                description: Tax Identification Number for the party (individual or entity).
                 type: string
                 maxLength: 9
                 pattern: ^[0-9]{9}$
                 minLength: 9
         charge:
+          description: List of charges/deductions.
           type: object
           properties:
             riderExerciseCharge:
+              description: One Time Rider Charge that will be Applied upon Rider Activation.
               type: number
               multipleOf: 0.01
               minimum: 0
               maximum: 9999999999.99
             riderExerciseChargeRate:
+              description: The rate or percentage applied to calculate the charge for exercising the rider.
               type: number
               multipleOf: 0.01
               minimum: 0
               maximum: 100
         maximumChronicIllnessBenefitPercentage:
+          description: The highest percentage of the death benefit or face amount that can be taken for chronic illness coverage
           type: number
           minimum: 0
         maximumPeriodicPaymentPeriod:
+          description: The maximum duration over which payments can be made under the rider ( in Months)
           type: integer
           minimum: 0
         riderPaymentDate:
+          description: The date the benefit payout under the rider is to be disbursed to the policyholder or beneficiary
           type: string
           format: date
         remainingBenefit:
+          description: The remaining benefit amount for the rider. Incremented by Premiums and adjusted by withdrawals.
           type: number
           minimum: 0
           maximum: 9999999999.99
         isAdditionalBenefitUsedUp:
+          description: Indicates whether the ADL benefit is utilised on the contract.
           type: boolean
         totalBenefit:
+          description: The total guaranteed value the contract owner is entitled to at the end of the GMAB holding period — assuming no disqualifying withdrawals or events.
           type: number
           minimum: 0
           maximum: 9999999999.99
         payoutOption:
+          description: Single or Joint Payout (not driven by Owners on the policy, even a jointly owned policy can have single as an option. Used in configuration to set different GMWB benefits for Single and Joint GMWB Amount Types
           type: string
           enum:
           - SINGLE
           - JOINT
         benefitPercent:
+          description: Ties to Withdrawal Reset Benefit % Annual Limit on Calender Processing if GMWB Anniversary Base reset is elected. Equals result of GMWB Benefit % equation box in Withdrawal tab (GMWB) Ku - Payout Factor  Percentage of the benefit base that will be available for withdrawal each year
           type: number
           minimum: 0
           maximum: 100
         annualBenefitLimit:
+          description: GMWB Annual Limit, The total amount that can be withdrawn as a benefit of this rider in any given policy year, regardless of whether or not there is sufficient account value. It is also the annual limit on amounts that can be withdrawn without adversely affecting future annual and lifetime benefits from the rider.this amount will be impacted during Reset or Withdrawals or Premium events
           type: number
           minimum: 0
           maximum: 9999999999.99
@@ -3222,6 +3349,7 @@ components:
           maxLength: 100
           description: Subtype classification for the rider.
         livesType:
+          description: For living benefit riders identifies if single or joint life rider
           type: string
           enum:
           - SINGLE
@@ -3229,6 +3357,7 @@ components:
           - MULTIPLE
           - UNKNOWN
         isParticipantIrrevocable:
+          description: Irrevocable Ind
           type: boolean
         additionalRiderClassification:
           type: string
@@ -3250,15 +3379,19 @@ components:
       type: object
       properties:
         startIndex:
+          description: Zero-based index of the first record to return.
           type: integer
           minimum: 0
         itemsCount:
+          description: Number of records included in the current response page.
           type: integer
           minimum: 0
         totalItemsCount:
+          description: Total number of records available that match the request criteria, independent of pagination.
           type: integer
           minimum: 0
         riders:
+          description: Represents the set of rider benefits or additional features attached to the base policy, including their status, coverage details, and associated benefit values.
           type: array
           items:
             $ref: '#/components/schemas/Rider'
@@ -3266,15 +3399,19 @@ components:
       type: object
       properties:
         startIndex:
+          description: Zero-based index of the first record to return.
           type: integer
           minimum: 0
         itemsCount:
+          description: Number of records included in the current response page.
           type: integer
           minimum: 0
         totalItemsCount:
+          description: Total number of records available that match the request criteria, independent of pagination.
           type: integer
           minimum: 0
         incomeArrangements:
+          description: List of income arrangements (annuitization + payout) for the policy; empty if none.
           type: array
           items:
             type: object
@@ -3283,27 +3420,34 @@ components:
             - incomePayment
             properties:
               incomeArrangementId:
+                description: Unique identifier for the arrangement if carrier provides one; else omit.
                 type: string
                 pattern: ^[A-Za-z0-9._-]{1,100}$
               annuitization:
+                description: Annuitization terms describing how the policy entered income phase.
                 type: object
                 required:
                 - isAnnuitized
                 properties:
                   isAnnuitized:
+                    description: True when the policy is in annuitized/income phase for this arrangement.
                     type: boolean
                   annuitizationStartDateTime:
+                    description: Date-time annuitization/income started (DTCC date-time string).
                     type: string
                     format: date-time
                   annuitizationEndDateTime:
+                    description: Date-time income ended (DTCC date-time string), if applicable.
                     type: string
                     format: date-time
                   annuitizationTypeCode:
+                    description: DTCC payout/annuitization type code.
                     type: string
                     enum:
                     - FIXED
                     - VARIABLE
                   periodCertain:
+                    description: Period certain configuration for the annuitization option.
                     type: object
                     properties:
                       numberOfPayments:
@@ -3312,21 +3456,27 @@ components:
                         description: Total payment count. String type retained for
                           carrier-specific leading-zero semantics.
                   survivorReduction:
+                    description: Survivor reduction terms if joint/survivor option.
                     type: object
                     properties:
                       primaryreductionCode:
+                        description: DTCC primary survivor reduction code.
                         type: string
                         pattern: ^[A-Za-z0-9._-]{1,50}$
                       jointreductionCode:
+                        description: DTCC joint survivor reduction code.
                         type: string
                         pattern: ^[A-Za-z0-9._-]{1,50}$
               incomePayment:
+                description: One or more income payment streams tied to the annuitization arrangement (usually 1).
                 type: object
                 properties:
                   incomePaymentId:
+                    description: Unique id for the income payment stream if carrier provides one; otherwise omit.
                     type: string
                     pattern: ^[A-Za-z0-9._-]{1,100}$
                   status:
+                    description: A Feature Status in life insurance and annuities indicates the current state or activation condition of a specific feature within a policy or contract. It reflects whether a feature is active, inactive, pending, or restricted, helping insurers, agents, and policyholders track policy functionality
                     type: string
                     enum:
                     - ACTIVE
@@ -3339,45 +3489,57 @@ components:
                     description: Frequency code value. String type retained for carrier-specific
                       code semantics.
                   amount:
+                    description: The total benefit amount the rider provides (separate from the base policy’s coverage.)
                     type: object
                     properties:
                       value:
+                        description: Income payment amount (raw DTCC decimal string).
                         type: string
                         pattern: ^-?\d+(\.\d+)?$
                       amountType:
+                        description: Indicates how the scheduled amount is defined for the systematic program, such as a fixed amount, percentage, maximum available amount, free withdrawal amount, withdrawal until basis, earnings only, pro rata amount, or modified earnings only.
                         type: string
                         enum:
                         - GROSS
                         - NET
                       amountCode:
+                        description: DTCC amount qualifier code (maps from insurancePolicyPayoutAmountCode).
                         type: string
                         pattern: ^[A-Za-z0-9._-]{1,50}$
                   adjustments:
+                    description: Adjustment parameters that affect the income payment stream over time.
                     type: object
                     properties:
                       increasePercentage:
+                        description: DTCC increase percent applied to payments (raw decimal string).
                         type: number
                         minimum: 0
                         maximum: 100
                   taxExclusion:
+                    description: Tax exclusion info for income payments.
                     type: object
                     properties:
                       value:
+                        description: Income payment amount (raw DTCC decimal string).
                         type: string
                         pattern: ^-?\d+(\.\d+)?$
     TransactionsList:
       type: object
       properties:
         startIndex:
+          description: Zero-based index of the first record to return.
           type: integer
           minimum: 0
-        itemsCount:
+        itemsCount: 
+          description: Number of records included in the current response page.
           type: integer
           minimum: 0
         totalItemsCount:
+          description: Total number of records available that match the request criteria, independent of pagination.
           type: integer
           minimum: 0
         transactions:
+          description: Transactions that may be performed by the authorized entities.
           type: array
           items:
             type: object
@@ -3405,6 +3567,7 @@ components:
                 type: string
                 pattern: ^[A-Za-z0-9._-]{1,100}$
               planCode:
+                description: The Plan Code is a carrier-assigned unique identifier used to distinguish a specific product, rate structure, and version of a life insurance or annuity policy. It ensures accurate policy tracking, pricing, and administration
                 type: string
                 pattern: ^[A-Za-z0-9._-]{1,50}$
               parentId:
@@ -3448,6 +3611,7 @@ components:
                 type: string
                 format: date
               effectiveDate:
+                description: Represents the date on which the policy or contract became active and coverage officially began.
                 type: string
                 format: date
               processDate:
@@ -3457,6 +3621,7 @@ components:
                 type: string
                 format: date
               status:
+                description: A Feature Status in life insurance and annuities indicates the current state or activation condition of a specific feature within a policy or contract. It reflects whether a feature is active, inactive, pending, or restricted, helping insurers, agents, and policyholders track policy functionality
                 type: string
                 enum:
                 - Pending
@@ -3494,11 +3659,13 @@ components:
               transactionAmounts:
                 $ref: '#/components/schemas/TransactionAmounts'
               charges:
+                description: List of charges/deductions.
                 type: array
                 items:
                   type: object
                   properties:
                     chargeType:
+                      description: Identifies the type of charge applied to the transaction. Charges may include service fees, rider charges, administrative fees, surrender charges, market value adjustments (MVA), taxes, or other carrier-defined charges associated with the transaction.
                       type: string
                       enum:
                       - SERVICE_CHARGE
@@ -3517,18 +3684,22 @@ components:
                     chargeWaiverReason:
                       type: string
                     chargeAmount:
+                      description: The amount of the charge applied for this transaction.
                       type: number
                       minimum: 0
                       maximum: 9999999999.99
                     chargeAppliedRate:
+                      description: The rate (%) utilized for calculation of charge.
                       type: number
                       minimum: 0
                       maximum: 9999999999.99
               taxWithholdingInstructions:
+                description: List of tax withholding instruction entries.
                 type: array
                 items:
                   $ref: '#/components/schemas/TaxWithholdingInstruction'
               timestamp:
+                description: Create or Update timestamp of transaction event
                 type: string
                 format: date-time
               isReverseInitiated:
@@ -3546,6 +3717,7 @@ components:
                     type: string
                     pattern: ^[A-Za-z0-9._-]{1,100}$
                   externalArrangementId:
+                    description: Identifier used to uniquely recognize an existing systematic program (e.g., SWP) associated with a contract. This ID enables the system to determine whether a systematic arrangement already exists and supports subsequent updates, modifications, or termination of that arrangement.
                     type: string
                     pattern: ^[A-Za-z0-9._-]{1,100}$
     TransactionAmounts:
@@ -3569,6 +3741,7 @@ components:
           minimum: 0
           maximum: 100
         amountType:
+          description: Indicates how the scheduled amount is defined for the systematic program, such as a fixed amount, percentage, maximum available amount, free withdrawal amount, withdrawal until basis, earnings only, pro rata amount, or modified earnings only.
           type: string
           enum:
           - AMOUNT
@@ -3600,6 +3773,7 @@ components:
       - if:
           properties:
             amountType:
+              description: Indicates how the scheduled amount is defined for the systematic program, such as a fixed amount, percentage, maximum available amount, free withdrawal amount, withdrawal until basis, earnings only, pro rata amount, or modified earnings only.
               const: AMOUNT
           required:
           - amountType
@@ -3612,6 +3786,7 @@ components:
       - if:
           properties:
             amountType:
+              description: Indicates how the scheduled amount is defined for the systematic program, such as a fixed amount, percentage, maximum available amount, free withdrawal amount, withdrawal until basis, earnings only, pro rata amount, or modified earnings only.
               const: PERCENTAGE
           required:
           - amountType
@@ -3624,6 +3799,7 @@ components:
       - if:
           properties:
             amountType:
+              description: Indicates how the scheduled amount is defined for the systematic program, such as a fixed amount, percentage, maximum available amount, free withdrawal amount, withdrawal until basis, earnings only, pro rata amount, or modified earnings only.
               enum:
               - MAX
               - FREEWITHDRAWALAMOUNT
@@ -3644,12 +3820,15 @@ components:
       type: object
       properties:
         startIndex:
+          description: Zero-based index of the first record to return.
           type: integer
           minimum: 0
         itemsCount:
+          description: Number of records included in the current response page.
           type: integer
           minimum: 0
         totalItemsCount:
+          description: Total number of records available that match the request criteria, independent of pagination.
           type: integer
           minimum: 0
         underlyingAssets:
@@ -3748,10 +3927,12 @@ components:
         optional per the data dictionary.
       properties:
         party:
+          description: Impacted party details for withholding.
           anyOf:
           - $ref: '#/components/schemas/IndividualIdentity'
           - $ref: '#/components/schemas/EntityIdentity'
         taxWithholdingType:
+          description: Type of tax withholding.
           type: string
           enum:
           - FEDERAL
@@ -3759,6 +3940,7 @@ components:
           - NRA
           - BACKUP
         taxRateToUse:
+          description: Selected tax rate source.
           type: string
           enum:
           - NOWITHHOLDINGELECTED
@@ -3785,16 +3967,17 @@ components:
           minimum: 0
           maximum: 9999999999.99
         percentage:
+          description: Percentage rate to withhold. Mutually exclusive with dollar; provide one, not both.
           type: number
-          description: Percentage rate to withhold. Mutually exclusive with dollar;
-            provide one, not both.
           minimum: 0
           maximum: 100
         exemptions:
+          description: Requested exemptions value
           type: integer
           minimum: 0
           maximum: 99
         taxJurisdiction:
+          description: Jurisdiction for tax purposes.If taxwithholdingType=STATE this field should be mandatory.
           type: string
           maxLength: 50
       required:
@@ -3809,6 +3992,7 @@ components:
       - if:
           properties:
             taxWithholdingType:
+              description: Type of tax withholding.
               const: STATE
           required:
           - taxWithholdingType
@@ -3837,24 +4021,29 @@ components:
       type: object
       properties:
         type:
+          description: Identity type
           type: string
           const: individual
         firstName:
+          description: First name of the party.
           type: string
           minLength: 1
           maxLength: 100
           pattern: ^[a-zA-Z0-9=()*@#\s.,'_/~%$!();:&"®`\\?\-]{1,100}$
         middleName:
+          description: Middle name of the party.
           type: string
           minLength: 1
           maxLength: 100
           pattern: ^[a-zA-Z0-9=()*@#\s.,'_/~%$!();:&"®`\\?\-]{1,100}$
         lastName:
+          description: Last name of the party.
           type: string
           minLength: 1
           maxLength: 100
           pattern: ^[a-zA-Z0-9=()*@#\s.,'_/~%$!();:&"®`\\?\-]{1,100}$
         taxId:
+          description: Tax Identification Number for the party (individual or entity).
           type: string
           maxLength: 9
           pattern: ^[0-9]{9}$
@@ -3892,19 +4081,23 @@ components:
       - taxId
       properties:
         type:
+          description: Identity type
           type: string
           const: entity
         name:
+          description: Entity name of the party.
           type: string
           minLength: 1
           maxLength: 100
-          pattern: ^[\w=()*@#\s.,'\/~%$!;:&"®`\\?\-]{1,100}$
+          pattern: ^[\w=()*@#\s.,'\/~%$!;:&"Â®`\\?\-]{1,100}$
         taxId:
+          description: Tax Identification Number for the party (individual or entity).
           type: string
           maxLength: 9
           pattern: ^[0-9]{9}$
           minLength: 9
     Bank:
+      description: Financial institution details.
       type: object
       required:
       - nameOnAccount
@@ -3913,17 +4106,21 @@ components:
       - routingNumber
       properties:
         bankId:
+          description: Bank identifier.
           type: string
           maxLength: 100
         nameOnAccount:
+          description: Name on the bank account.
           type: string
           maxLength: 100
         accountStatus:
+          description: Status of the bank account.
           type: string
           enum:
           - ACTIVEBANKACCOUNT
           - TERMINATEDBANKACCOUNT
         accountType:
+          description: Type of the bank account.
           type: string
           enum:
           - CHECKING
@@ -3933,16 +4130,20 @@ components:
           - BROKERAGEACCOUNT
           - CERTIFICATEOFDEPOSITACCOUNT
         accountNumber:
+          description: Bank account number.
           type: string
           pattern: ^\d{4,17}$
           maxLength: 17
         routingNumber:
+          description: Routing number.
           type: string
           pattern: ^\d{9}$
         branchName:
+          description: Branch name.
           type: string
           maxLength: 100
     Address:
+      description: Physical or mailing address details.
       type: object
       required:
       - addressType
@@ -3952,9 +4153,11 @@ components:
       - zipCode
       properties:
         addressId:
+          description: Address identifier.
           type: string
           maxLength: 100
         addressType:
+          description: Type of address.
           type: string
           enum:
           - RESIDENCE
@@ -3962,33 +4165,43 @@ components:
           - POBOXSEASONAL
           - OTHER
         addressLine1:
+          description: First line of the address.
           type: string
           maxLength: 100
         addressLine2:
+          description: Second line of the address.
           type: string
           maxLength: 100
         addressLine3:
+          description: Third line of the address.
           type: string
           maxLength: 100
         addressLine4:
+          description: Fourth line of the address.
           type: string
           maxLength: 100
         addressLine5:
+          description: Fifth line of the address.
           type: string
           maxLength: 100
         city:
+          description: City name.
           type: string
           maxLength: 100
         state:
+          description: State code (2-digit ISO).
           type: string
           pattern: ^[A-Z]{2}$
         zipCode:
+          description: Zip code.
           type: string
           pattern: ^[0-9A-Za-z -]{3,10}$
         zipCodeExtension:
+          description: Zip code extension.
           type: string
           pattern: ^[0-9A-Za-z]{1,4}$
         country:
+          description: Country code (2-digit ISO).
           type: string
           pattern: ^[A-Z]{2}$
     Phone:
@@ -3999,12 +4212,14 @@ components:
       - dialNumber
       properties:
         startDate:
+          description: The date when the systematic program begins executing payments or transfers (entered by user).
           type: string
           format: date
         endDate:
           type: string
           format: date
         phoneType:
+          description: Indicates the classification of the phone number provided.
           type: string
           enum:
           - MOBILE
@@ -4017,6 +4232,7 @@ components:
           - UNKNOWN
           - OTHER
         countryCode:
+          description: Country Code of the phone.
           type: string
           pattern: ^\+?[0-9]{1,3}$
         areaCode:
@@ -4025,12 +4241,15 @@ components:
           description: Supports domestic and international numbering plans; 2 to 5
             digits are allowed.
         dialNumber:
+          description: Dial number of the phone
           type: string
           pattern: ^[0-9]{4,12}$
         extension:
+          description: Dial in Extension for phone
           type: string
           pattern: ^[A-Za-z0-9-]{1,10}$
         bestTime:
+          description: The best time to contact the party via phone.
           type: string
           enum:
           - MORNING
@@ -4038,11 +4257,14 @@ components:
           - EVENING
           - ANYTIME
         timezone:
+          description: Timezone for the entered phone details.
           type: string
           pattern: ^[A-Za-z_]+/[A-Za-z_]+(?:/[A-Za-z_]+)?$
         isPreferred:
+          description: The Preferred Email Indicator is a boolean flag or attribute assigned to each email associated with a party, used to identify which email number should be used as the primary email for communication.
           type: boolean
         phoneId:
+          description: The record Id stored internally in zahara for each phone
           type: string
           pattern: ^[A-Za-z0-9._-]{1,100}$
     Email:
@@ -4051,12 +4273,14 @@ components:
       - emailAddress
       properties:
         startDate:
+          description: The date when the systematic program begins executing payments or transfers (entered by user).
           type: string
           format: date
         endDate:
           type: string
           format: date
         emailType:
+          description: Specifies the type or category of the email address.
           type: string
           enum:
           - PERSONAL
@@ -4064,12 +4288,15 @@ components:
           - CUSTOMERSERVICE
           - OTHER
         emailAddress:
+          description: Email address of the party.
           type: string
           format: email
           pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
         isPreferred:
+          description: The Preferred Email Indicator is a boolean flag or attribute assigned to each email associated with a party, used to identify which email number should be used as the primary email for communication.
           type: boolean
         emailId:
+          description: The record Id stored internally in zahara for each email.
           type: string
           pattern: ^[A-Za-z0-9._-]{1,100}$
     Identification:
@@ -4079,15 +4306,19 @@ components:
       - endDate
       properties:
         identificationId:
+          description: A unique system-generated ID for tracking individual identifier records.
           type: string
           pattern: ^[A-Za-z0-9._-]{1,100}$
         startDate:
+          description: The date when the systematic program begins executing payments or transfers (entered by user).
           type: string
           format: date
         endDate:
+          description: The date Special Program ends (Entered by user or determined by LPS based on Account Value)
           type: string
           format: date
         identificationType:
+          description: Specifies the kind of identifier provided for a party. It describes what type of document or number is being used to recognize or verify the party's identity.
           type: string
           enum:
           - PASSPORT
@@ -4099,15 +4330,19 @@ components:
           - EIN
           - OTHER
         identificationKey:
+          description: A unique code (such as ECN, Life Party ID, or Series Code) used to uniquely identify and manage individuals, entities, or product groupings within life insurance and annuity systems.
           type: string
           pattern: ^[A-Za-z0-9._-]{1,100}$
         identificationValue:
+          description: The unique number of the selected identification type.
           type: string
           maxLength: 100
         identificationDescription:
+          description: A brief description of the identifier.
           type: string
           maxLength: 255
         issueState:
+          description: Values represent USPS state, territory, and military mail codes.  
           type: string
           enum:
           - AA
@@ -4170,7 +4405,6 @@ components:
           - WV
           - WI
           - WY
-          description: Values represent USPS state, territory, and military mail codes.
         issueCountry:
           type: string
           enum:
@@ -4426,17 +4660,22 @@ components:
           - YE
           description: Uses current ISO 3166-1 alpha-2 country codes.
     DeathDetails:
+      description: Details regarding the death of the insured/annuitant
       type: object
       properties:
         dateOfDeath:
+          description: The date on which the insured/annuitant died.
           type: string
           format: date
         causeOfDeath:
+          description: Specifies the documented reason or medical determination for the individual’s death.
           type: string
           maxLength: 100
         deathNotificationDate:
+          description: The date on which carrier was notified of the death.
           type: string
           format: date
         dateOfDueProof:
+          description: Date the appropriate death paperwork was received (example - death certificate receive date).
           type: string
           format: date
